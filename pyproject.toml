@@ -1,0 +1,35 @@
+[project]
+name="bods-explorer"
+description = "Web application for dynamic querying of APIs to explorer beneficial ownership data"
+version = "0.1"
+requires-python = '>=3.10'
+dependencies = ["reflex",
+                "httpx",
+                "pycountry",
+                "pytz",
+                "python-dateutil",
+                "transliterate",
+                "geopy",
+                "plotly",
+                "parsel"]
+readme="README.md"
+license = {text= "AGPLv3"}
+authors = [
+  { name = 'Open Ownership', email='code@opendataservices.coop' },
+]
+
+[project.urls]
+homepage = 'https://github.com/openownership/bods-explorer'
+documentation = 'https://github.com/openownership/bods-explorer'
+repository = 'https://github.com/openownership/bods-explorer'
+
+[tool.ruff]
+lint.select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
