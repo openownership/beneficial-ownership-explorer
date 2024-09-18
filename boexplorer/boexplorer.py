@@ -48,7 +48,7 @@ def index() -> rx.Component:
     return rx.container(
         rx.color_mode.button(position="top-right"),
         rx.vstack(
-            rx.heading("BODS Explorer", font_size="9"),
+            rx.heading("BO Explorer", font_size="9"),
             rx.form(
                 rx.vstack(
                     rx.input(
