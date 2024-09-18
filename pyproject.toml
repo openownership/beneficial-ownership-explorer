@@ -1,5 +1,5 @@
 [project]
-name="bods-explorer"
+name="bosearch"
 description = "Web application for dynamic querying of APIs to explorer beneficial ownership data"
 version = "0.1"
 requires-python = '>=3.10'
@@ -19,9 +19,9 @@ authors = [
 ]
 
 [project.urls]
-homepage = 'https://github.com/openownership/bods-explorer'
-documentation = 'https://github.com/openownership/bods-explorer'
-repository = 'https://github.com/openownership/bods-explorer'
+homepage = 'https://github.com/openownership/beneficial-ownership-search'
+documentation = 'https://github.com/openownership/beneficial-ownership-search'
+repository = 'https://github.com/openownership/beneficial-ownership-search'
 
 [tool.ruff]
 lint.select = [
