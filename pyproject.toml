@@ -1,5 +1,5 @@
 [project]
-name="bosearch"
+name="boexplorer"
 description = "Web application for dynamic querying of APIs to explorer beneficial ownership data"
 version = "0.1"
 requires-python = '>=3.10'
