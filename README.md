@@ -16,6 +16,8 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+Copy example configuration file (`boexplorer.toml.example`) to `boexplorer.toml` and edit.
+
 Run application:
 
 ```
