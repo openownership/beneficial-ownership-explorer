@@ -1,0 +1,677 @@
+{
+  "meta": {
+    "goldenCopy": {
+      "publishDate": "2024-08-26T00:00:00Z"
+    },
+    "pagination": {
+      "currentPage": 1,
+      "perPage": 5,
+      "from": 1,
+      "to": 5,
+      "total": 618,
+      "lastPage": 124
+    }
+  },
+  "links": {
+    "first": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.names%5D=British&page%5Bnumber%5D=1&page%5Bsize%5D=5",
+    "next": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.names%5D=British&page%5Bnumber%5D=2&page%5Bsize%5D=5",
+    "last": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.names%5D=British&page%5Bnumber%5D=124&page%5Bsize%5D=5"
+  },
+  "data": [
+    {
+      "type": "lei-records",
+      "id": "213800S8DFQ6UFES2T83",
+      "attributes": {
+        "lei": "213800S8DFQ6UFES2T83",
+        "entity": {
+          "legalName": {
+            "name": "BRITISH COUNCIL(THE)",
+            "language": "en"
+          },
+          "otherNames": [
+            {
+              "name": "BRITISH COUNCIL",
+              "language": "en",
+              "type": "TRADING_OR_OPERATING_NAME"
+            }
+          ],
+          "transliteratedOtherNames": [],
+          "legalAddress": {
+            "language": "en",
+            "addressLines": [
+              "1 REDMAN PLACE",
+              "STRATFORD"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LONDON",
+            "region": "GB-LND",
+            "country": "GB",
+            "postalCode": "E20 1JQ"
+          },
+          "headquartersAddress": {
+            "language": "en",
+            "addressLines": [
+              "1 REDMAN PLACE",
+              "STRATFORD"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LONDON",
+            "region": "GB-LND",
+            "country": "GB",
+            "postalCode": "E20 1JQ"
+          },
+          "registeredAt": {
+            "id": "RA000585",
+            "other": null
+          },
+          "registeredAs": "RC000060",
+          "jurisdiction": "GB",
+          "category": "GENERAL",
+          "legalForm": {
+            "id": "9B78",
+            "other": null
+          },
+          "associatedEntity": {
+            "lei": null,
+            "name": null
+          },
+          "status": "ACTIVE",
+          "expiration": {
+            "date": null,
+            "reason": null
+          },
+          "successorEntity": {
+            "lei": null,
+            "name": null
+          },
+          "successorEntities": [],
+          "creationDate": "1963-01-03T00:00:00Z",
+          "subCategory": null,
+          "otherAddresses": [],
+          "eventGroups": []
+        },
+        "registration": {
+          "initialRegistrationDate": "2015-05-01T00:00:00Z",
+          "lastUpdateDate": "2024-04-08T08:41:10Z",
+          "status": "ISSUED",
+          "nextRenewalDate": "2025-05-01T00:00:00Z",
+          "managingLou": "213800WAVVOPS85N2205",
+          "corroborationLevel": "FULLY_CORROBORATED",
+          "validatedAt": {
+            "id": "RA000585",
+            "other": null
+          },
+          "validatedAs": "RC000060",
+          "otherValidationAuthorities": []
+        },
+        "bic": null,
+        "mic": null,
+        "ocid": "gb/RC000060",
+        "spglobal": [
+          "31290827"
+        ],
+        "conformityFlag": "CONFORMING"
+      },
+      "relationships": {
+        "managing-lou": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/managing-lou"
+          }
+        },
+        "lei-issuer": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/lei-issuer"
+          }
+        },
+        "field-modifications": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/field-modifications"
+          }
+        },
+        "direct-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/direct-parent-reporting-exception"
+          }
+        },
+        "ultimate-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/ultimate-parent-reporting-exception"
+          }
+        },
+        "direct-children": {
+          "links": {
+            "relationship-records": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/direct-child-relationships",
+            "related": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/direct-children"
+          }
+        },
+        "ultimate-children": {
+          "links": {
+            "relationship-records": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/ultimate-child-relationships",
+            "related": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/ultimate-children"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83"
+      }
+    },
+    {
+      "type": "lei-records",
+      "id": "213800ZQ5RUY1Y4IZI23",
+      "attributes": {
+        "lei": "213800ZQ5RUY1Y4IZI23",
+        "entity": {
+          "legalName": {
+            "name": "BRITISH PARACHUTE ASSOCIATION LIMITED",
+            "language": "en"
+          },
+          "otherNames": [
+            {
+              "name": "BRITISH SKYDIVING",
+              "language": "en",
+              "type": "TRADING_OR_OPERATING_NAME"
+            }
+          ],
+          "transliteratedOtherNames": [],
+          "legalAddress": {
+            "language": "en",
+            "addressLines": [
+              "5 WHARF WAY",
+              "GLEN PARVA"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LEICESTER",
+            "region": "GB-LCE",
+            "country": "GB",
+            "postalCode": "LE2 9TF"
+          },
+          "headquartersAddress": {
+            "language": "en",
+            "addressLines": [
+              "5 WHARF WAY",
+              "GLEN PARVA"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LEICESTER",
+            "region": "GB-LCE",
+            "country": "GB",
+            "postalCode": "LE2 9TF"
+          },
+          "registeredAt": {
+            "id": "RA000585",
+            "other": null
+          },
+          "registeredAs": "00875429",
+          "jurisdiction": "GB",
+          "category": "GENERAL",
+          "legalForm": {
+            "id": "G12F",
+            "other": null
+          },
+          "associatedEntity": {
+            "lei": null,
+            "name": null
+          },
+          "status": "ACTIVE",
+          "expiration": {
+            "date": null,
+            "reason": null
+          },
+          "successorEntity": {
+            "lei": null,
+            "name": null
+          },
+          "successorEntities": [],
+          "creationDate": null,
+          "subCategory": null,
+          "otherAddresses": [],
+          "eventGroups": []
+        },
+        "registration": {
+          "initialRegistrationDate": "2019-10-16T00:00:00Z",
+          "lastUpdateDate": "2020-10-17T01:06:41Z",
+          "status": "LAPSED",
+          "nextRenewalDate": "2020-10-16T00:00:00Z",
+          "managingLou": "213800WAVVOPS85N2205",
+          "corroborationLevel": "FULLY_CORROBORATED",
+          "validatedAt": {
+            "id": "RA000585",
+            "other": null
+          },
+          "validatedAs": "00875429",
+          "otherValidationAuthorities": []
+        },
+        "bic": null,
+        "mic": null,
+        "ocid": "gb/00875429",
+        "spglobal": [
+          "608586852"
+        ],
+        "conformityFlag": "NON_CONFORMING"
+      },
+      "relationships": {
+        "managing-lou": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800ZQ5RUY1Y4IZI23/managing-lou"
+          }
+        },
+        "lei-issuer": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800ZQ5RUY1Y4IZI23/lei-issuer"
+          }
+        },
+        "field-modifications": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800ZQ5RUY1Y4IZI23/field-modifications"
+          }
+        },
+        "direct-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800ZQ5RUY1Y4IZI23/direct-parent-reporting-exception"
+          }
+        },
+        "ultimate-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800ZQ5RUY1Y4IZI23/ultimate-parent-reporting-exception"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.gleif.org/api/v1/lei-records/213800ZQ5RUY1Y4IZI23"
+      }
+    },
+    {
+      "type": "lei-records",
+      "id": "213800DWZWDYHXQ36V41",
+      "attributes": {
+        "lei": "213800DWZWDYHXQ36V41",
+        "entity": {
+          "legalName": {
+            "name": "BRITISH CANOEING",
+            "language": "en"
+          },
+          "otherNames": [
+            {
+              "name": "BRITISH CANOE UNION",
+              "language": "en",
+              "type": "PREVIOUS_LEGAL_NAME"
+            }
+          ],
+          "transliteratedOtherNames": [],
+          "legalAddress": {
+            "language": "en",
+            "addressLines": [
+              "NATIONAL WATER SPORT CENTRE ADBOLTON LANE",
+              "HOLME PIERREPONT"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "NOTTINGHAM",
+            "region": "GB-NGM",
+            "country": "GB",
+            "postalCode": "NG12 2LU"
+          },
+          "headquartersAddress": {
+            "language": "en",
+            "addressLines": [
+              "NATIONAL WATER SPORT CENTRE ADBOLTON LANE",
+              "HOLME PIERREPONT"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "NOTTINGHAM",
+            "region": "GB-NGM",
+            "country": "GB",
+            "postalCode": "NG12 2LU"
+          },
+          "registeredAt": {
+            "id": "RA000585",
+            "other": null
+          },
+          "registeredAs": "01525484",
+          "jurisdiction": "GB",
+          "category": "GENERAL",
+          "legalForm": {
+            "id": "G12F",
+            "other": null
+          },
+          "associatedEntity": {
+            "lei": null,
+            "name": null
+          },
+          "status": "ACTIVE",
+          "expiration": {
+            "date": null,
+            "reason": null
+          },
+          "successorEntity": {
+            "lei": null,
+            "name": null
+          },
+          "successorEntities": [],
+          "creationDate": "1980-10-30T00:00:00Z",
+          "subCategory": null,
+          "otherAddresses": [],
+          "eventGroups": []
+        },
+        "registration": {
+          "initialRegistrationDate": "2018-04-10T00:00:00Z",
+          "lastUpdateDate": "2024-03-28T13:24:41Z",
+          "status": "ISSUED",
+          "nextRenewalDate": "2025-05-06T00:00:00Z",
+          "managingLou": "213800WAVVOPS85N2205",
+          "corroborationLevel": "FULLY_CORROBORATED",
+          "validatedAt": {
+            "id": "RA000585",
+            "other": null
+          },
+          "validatedAs": "01525484",
+          "otherValidationAuthorities": []
+        },
+        "bic": null,
+        "mic": null,
+        "ocid": "gb/01525484",
+        "spglobal": [
+          "111958035"
+        ],
+        "conformityFlag": "CONFORMING"
+      },
+      "relationships": {
+        "managing-lou": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800DWZWDYHXQ36V41/managing-lou"
+          }
+        },
+        "lei-issuer": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800DWZWDYHXQ36V41/lei-issuer"
+          }
+        },
+        "field-modifications": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800DWZWDYHXQ36V41/field-modifications"
+          }
+        },
+        "direct-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800DWZWDYHXQ36V41/direct-parent-reporting-exception"
+          }
+        },
+        "ultimate-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800DWZWDYHXQ36V41/ultimate-parent-reporting-exception"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.gleif.org/api/v1/lei-records/213800DWZWDYHXQ36V41"
+      }
+    },
+    {
+      "type": "lei-records",
+      "id": "549300GRTM1DG5DJIJ17",
+      "attributes": {
+        "lei": "549300GRTM1DG5DJIJ17",
+        "entity": {
+          "legalName": {
+            "name": "THE ROYAL BRITISH LEGION",
+            "language": "en"
+          },
+          "otherNames": [
+            {
+              "name": "BRITISH LEGION",
+              "language": "en",
+              "type": "PREVIOUS_LEGAL_NAME"
+            }
+          ],
+          "transliteratedOtherNames": [],
+          "legalAddress": {
+            "language": "en",
+            "addressLines": [
+              "199 BOROUGH HIGH STREET"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LONDON",
+            "region": "GB-LND",
+            "country": "GB",
+            "postalCode": "SE1 1AA"
+          },
+          "headquartersAddress": {
+            "language": "en",
+            "addressLines": [
+              "199 BOROUGH HIGH STREET"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LONDON",
+            "region": "GB-LND",
+            "country": "GB",
+            "postalCode": "SE1 1AA"
+          },
+          "registeredAt": {
+            "id": "RA000589",
+            "other": null
+          },
+          "registeredAs": "219279",
+          "jurisdiction": "GB",
+          "category": "GENERAL",
+          "legalForm": {
+            "id": "8888",
+            "other": "COMPANY"
+          },
+          "associatedEntity": {
+            "lei": null,
+            "name": null
+          },
+          "status": "ACTIVE",
+          "expiration": {
+            "date": null,
+            "reason": null
+          },
+          "successorEntity": {
+            "lei": null,
+            "name": null
+          },
+          "successorEntities": [],
+          "creationDate": "2017-10-18T00:00:00Z",
+          "subCategory": null,
+          "otherAddresses": [],
+          "eventGroups": []
+        },
+        "registration": {
+          "initialRegistrationDate": "2017-10-18T03:24:00Z",
+          "lastUpdateDate": "2023-10-04T11:41:07Z",
+          "status": "ISSUED",
+          "nextRenewalDate": "2024-10-06T00:00:00Z",
+          "managingLou": "213800WAVVOPS85N2205",
+          "corroborationLevel": "FULLY_CORROBORATED",
+          "validatedAt": {
+            "id": "RA000589",
+            "other": null
+          },
+          "validatedAs": "219279",
+          "otherValidationAuthorities": []
+        },
+        "bic": null,
+        "mic": null,
+        "ocid": null,
+        "spglobal": [
+          "26764043"
+        ],
+        "conformityFlag": "NON_CONFORMING"
+      },
+      "relationships": {
+        "managing-lou": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/549300GRTM1DG5DJIJ17/managing-lou"
+          }
+        },
+        "lei-issuer": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/549300GRTM1DG5DJIJ17/lei-issuer"
+          }
+        },
+        "field-modifications": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/549300GRTM1DG5DJIJ17/field-modifications"
+          }
+        },
+        "direct-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/549300GRTM1DG5DJIJ17/direct-parent-reporting-exception"
+          }
+        },
+        "ultimate-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/549300GRTM1DG5DJIJ17/ultimate-parent-reporting-exception"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.gleif.org/api/v1/lei-records/549300GRTM1DG5DJIJ17"
+      }
+    },
+    {
+      "type": "lei-records",
+      "id": "213800J2K129SPW2TB91",
+      "attributes": {
+        "lei": "213800J2K129SPW2TB91",
+        "entity": {
+          "legalName": {
+            "name": "BRITISH INFECTION ASSOCIATION.",
+            "language": "en"
+          },
+          "otherNames": [
+            {
+              "name": "BRITISH INFECTION SOCIETY",
+              "language": "en",
+              "type": "TRADING_OR_OPERATING_NAME"
+            }
+          ],
+          "transliteratedOtherNames": [],
+          "legalAddress": {
+            "language": "en",
+            "addressLines": [
+              "THE WHITTINGTON",
+              "MAGDALA AVENUE"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LONDON",
+            "region": "GB-LND",
+            "country": "GB",
+            "postalCode": "N19 5NF"
+          },
+          "headquartersAddress": {
+            "language": "en",
+            "addressLines": [
+              "THE WHITTINGTON HOSPITAL",
+              "MAGDALA AVENUE"
+            ],
+            "addressNumber": null,
+            "addressNumberWithinBuilding": null,
+            "mailRouting": null,
+            "city": "LONDON",
+            "region": "GB-LND",
+            "country": "GB",
+            "postalCode": "N19 5NF"
+          },
+          "registeredAt": {
+            "id": "RA000590",
+            "other": null
+          },
+          "registeredAs": "SC029247",
+          "jurisdiction": "GB",
+          "category": "GENERAL",
+          "legalForm": {
+            "id": "8888",
+            "other": "CHARITY"
+          },
+          "associatedEntity": {
+            "lei": null,
+            "name": null
+          },
+          "status": "ACTIVE",
+          "expiration": {
+            "date": null,
+            "reason": null
+          },
+          "successorEntity": {
+            "lei": null,
+            "name": null
+          },
+          "successorEntities": [],
+          "creationDate": null,
+          "subCategory": null,
+          "otherAddresses": [],
+          "eventGroups": []
+        },
+        "registration": {
+          "initialRegistrationDate": "2017-11-10T00:00:00Z",
+          "lastUpdateDate": "2019-09-13T08:26:31Z",
+          "status": "LAPSED",
+          "nextRenewalDate": "2018-11-10T00:00:00Z",
+          "managingLou": "213800WAVVOPS85N2205",
+          "corroborationLevel": "FULLY_CORROBORATED",
+          "validatedAt": {
+            "id": "RA000590",
+            "other": null
+          },
+          "validatedAs": "SC029247",
+          "otherValidationAuthorities": []
+        },
+        "bic": null,
+        "mic": null,
+        "ocid": null,
+        "spglobal": [
+          "549844316"
+        ],
+        "conformityFlag": "NON_CONFORMING"
+      },
+      "relationships": {
+        "managing-lou": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800J2K129SPW2TB91/managing-lou"
+          }
+        },
+        "lei-issuer": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800J2K129SPW2TB91/lei-issuer"
+          }
+        },
+        "field-modifications": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800J2K129SPW2TB91/field-modifications"
+          }
+        },
+        "direct-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800J2K129SPW2TB91/direct-parent-reporting-exception"
+          }
+        },
+        "ultimate-parent": {
+          "links": {
+            "reporting-exception": "https://api.gleif.org/api/v1/lei-records/213800J2K129SPW2TB91/ultimate-parent-reporting-exception"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.gleif.org/api/v1/lei-records/213800J2K129SPW2TB91"
+      }
+    }
+  ]
+}

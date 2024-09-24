@@ -27,6 +27,12 @@ class SlovakiaORSR(API):
                 "company_detail": None}
 
     @property
+    def return_json(self) -> dict:
+        """API returns json"""
+        return {"company_search": True,
+                "company_detail": None}
+
+    @property
     def post_pagination(self) -> bool:
         """API post pagination"""
         return False
@@ -156,7 +162,7 @@ class SlovakiaORSR(API):
                 return item
         return None
 
-    def indentifier(self, data: dict) -> str:
+    def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         latest = self._extract_latest(data["identifiers"])
         return latest["value"] if latest else None
@@ -186,7 +192,7 @@ class SlovakiaORSR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        identifier = self.indentifier(item)
+        identifier = self.identifier(item)
         return f"SK-ORSR-{identifier}"
 
     def registered_address(self, item: dict) -> dict:
@@ -250,7 +256,7 @@ class SlovakiaORSR(API):
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
        """Annotation of status for all entity statements (not generated as a result
        of a reporting exception)"""
-       ident = self.indentifier(data)
+       ident = self.identifier(data)
        registration_status = self.registation_status(data)
        return (f"Slokavian Business Register data for this entity: {ident}; Registration Status: {registration_status}",
                "/")

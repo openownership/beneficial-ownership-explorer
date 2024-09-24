@@ -42,7 +42,7 @@ def data_source(data, api):
     return {'type': sourceType, 'description': sourceDescription}
 
 def entity_id(item, api):
-    lei = api.indentifier(item)
+    lei = api.identifier(item)
     last_update = api.update_date(item)
     return f"{lei}_{last_update}"
 
@@ -56,7 +56,7 @@ def transform_entity(data, api):
     name = api.entity_name(item)
     country = jurisdiction_name(api.jurisdiction(item))
     jurisdiction = {'name': country, 'code': api.jurisdiction(item)}
-    identifiers = [{'id': api.indentifier(data),
+    identifiers = [{'id': api.identifier(data),
                     'scheme': api.scheme,
                     'schemeName': api.scheme_name}]
     identifiers += api.additional_identifiers(item)

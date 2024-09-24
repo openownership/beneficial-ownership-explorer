@@ -98,7 +98,7 @@ class API(Protocol):
         """Extract relationship item data"""
 
     @abstractmethod
-    def indentifier(self, data: dict) -> str:
+    def identifier(self, data: dict) -> str:
         """Get entity identifier"""
 
     @abstractmethod

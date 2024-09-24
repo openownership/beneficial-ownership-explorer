@@ -7,6 +7,8 @@ from boexplorer.apis.denmark_cvr import DenmarkCVR
 from boexplorer.apis.latvia_ur import LatviaUR
 from boexplorer.apis.poland_krs import PolandKRS
 from boexplorer.apis.estonia_rik import EstoniaRIK
+from boexplorer.apis.france_inpi import FranceINPI
+from boexplorer.apis.czech_cr import CzechCR
 from boexplorer.data.data import load_data
 
 scheme_data = load_data()
@@ -19,4 +21,6 @@ search_apis = [GLEIF(scheme_data=scheme_data),
                DenmarkCVR(),
                LatviaUR(),
                PolandKRS(),
-               EstoniaRIK()]
+               EstoniaRIK(),
+               FranceINPI(),
+               CzechCR()]

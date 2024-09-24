@@ -1,0 +1,77 @@
+{
+  "meta": {
+  "goldenCopy": {
+      "publishDate": "2024-08-26T00:00:00Z"
+    },
+    "pagination": {
+      "currentPage": 1,
+      "perPage": 15,
+      "from": 1,
+      "to": 1,
+      "total": 1,
+      "lastPage": 1
+    }
+  },
+  "links": {
+    "first": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/ultimate-child-relationships?page%5Bnumber%5D=1&page%5Bsize%5D=15",
+    "last": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83/ultimate-child-relationships?page%5Bnumber%5D=1&page%5Bsize%5D=15"
+  },
+  "data": [
+    {
+      "type": "relationship-records",
+      "id": "3358008CG1OJ6EZS2B34|LEI|IS_ULTIMATELY_CONSOLIDATED_BY|10|0fcc86b0d30f8819583e57c9df8b0820b9b9cead00ed0af90f76f55b2db30d0f|",
+      "attributes": {
+        "validFrom": "2023-12-02T16:00:00Z",
+        "validTo": null,
+        "relationship": {
+          "startNode": {
+            "id": "3358008CG1OJ6EZS2B34",
+            "type": "LEI"
+          },
+          "endNode": {
+            "id": "213800S8DFQ6UFES2T83",
+            "type": "LEI"
+          },
+          "type": "IS_ULTIMATELY_CONSOLIDATED_BY",
+          "status": "ACTIVE",
+          "periods": [
+            {
+              "startDate": "2010-05-11T18:30:00Z",
+              "type": "RELATIONSHIP_PERIOD"
+            },
+            {
+              "startDate": "2020-03-31T18:30:00Z",
+              "endDate": "2021-03-30T18:30:00Z",
+              "type": "ACCOUNTING_PERIOD"
+            }
+          ]
+        },
+        "registration": {
+          "initialRegistrationDate": "2022-12-27T15:17:59Z",
+          "lastUpdateDate": "2022-12-27T15:17:59Z",
+          "status": "PUBLISHED",
+          "nextRenewalDate": "2025-01-07T18:30:00Z",
+          "managingLou": "335800FVH4MOKZS9VH40",
+          "corroborationLevel": "FULLY_CORROBORATED",
+          "corroborationDocuments": "ACCOUNTS_FILING",
+          "corroborationReference": null
+        },
+        "extension": {
+          "deletedAt": null
+        }
+      },
+      "relationships": {
+        "start-node": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/3358008CG1OJ6EZS2B34"
+          }
+        },
+        "end-node": {
+          "links": {
+            "related": "https://api.gleif.org/api/v1/lei-records/213800S8DFQ6UFES2T83"
+          }
+        }
+      }
+    }
+  ]
+}

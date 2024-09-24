@@ -49,7 +49,10 @@ def fetch_all_data(api, text, bods_data, max_results=100):
                                   post=api.http_post["company_search"],
                                   post_pagination=api.post_pagination,
                                   post_json=isinstance(query_params, dict),
-                                  auth=api.authenticator if not isinstance(api.authenticator, dict) else None)
+                                  json_data=api.return_json["company_search"],
+                                  auth=api.authenticator if not (isinstance(api.authenticator, dict) and
+                                                             not 'Authorization' in api.authenticator)
+                                                             else None)
         print(json.dumps(json_data, indent=2))
         if not api.check_result(json_data):
             break
@@ -71,7 +74,9 @@ def fetch_all_data(api, text, bods_data, max_results=100):
             url, params = build_company_id_query(api, entity)
             json_data = download_json(url, params, {},
                                       post=api.http_post["company_detail"],
-                                      auth=api.authenticator if not isinstance(api.authenticator, dict) else None)
+                                      auth=api.authenticator if not (isinstance(api.authenticator, dict) and
+                                                             not 'Authorization' in api.authenticator)
+                                                             else None)
             print(json.dumps(json_data, indent=2))
             if api.check_result(json_data, detail=True):
                 #break

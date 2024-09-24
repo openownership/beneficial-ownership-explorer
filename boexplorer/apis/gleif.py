@@ -26,6 +26,12 @@ class GLEIF(API):
                 "company_detail": None}
 
     @property
+    def return_json(self) -> dict:
+        """API returns json"""
+        return {"company_search": True,
+                "company_detail": None}
+
+    @property
     def post_pagination(self) -> bool:
         """API post pagination"""
         return False
@@ -124,7 +130,7 @@ class GLEIF(API):
         """Extract relationship item data"""
         return data['attributes']['relationship']
 
-    def indentifier(self, data: dict) -> str:
+    def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data["attributes"]["lei"]
 
@@ -224,7 +230,7 @@ class GLEIF(API):
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
        """Annotation of status for all entity statements (not generated as a result
        of a reporting exception)"""
-       lei = self.indentifier(data)
+       lei = self.identifier(data)
        registration_status = self.registation_status(data)
        return (f"GLEIF data for this entity - LEI: {lei}; Registration Status: {registration_status}",
                "/")

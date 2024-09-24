@@ -16,13 +16,13 @@ def parse_html(html_text):
     selector = Selector(text=html_text)
     return selector.xpath('//body')
 
-def authenticate(auth_url, client_id, client_secret):
-    r = httpx.post(auth_url, json={"username": client_id, "password": client_secret})
-    json_data = r.json()
-    print(json.dumps(json_data))
-    return json_data['token']
+#def authenticate(auth_url, client_id, client_secret):
+#    r = httpx.post(auth_url, json={"username": client_id, "password": client_secret})
+#    json_data = r.json()
+#    print(json.dumps(json_data))
+#    return json_data['token']
 
-def download_json(api_url, query_params, other_params, json_data=True, auth=None, token=None,
+def download_json(api_url, query_params, other_params, json_data=True, auth=None,
                   post=False, post_json=True, post_pagination=False, header=None, random_ua=True,
                   verify=True, timeout=15):
     if json_data:
@@ -33,8 +33,10 @@ def download_json(api_url, query_params, other_params, json_data=True, auth=None
     if header:
         for h in header:
             headers[h] = header[h]
-    if token:
-        headers['Authorization'] = f'Bearer {token}'
+    if isinstance(auth, dict):
+        for a in auth:
+            headers[a] = auth[a]
+        auth = None
     if random_ua:
         headers["User-Agent"] = get_random_user_agent()
     print("Headers:", headers, "URL:", api_url, "Post:", post, "Params:", query_params, other_params)

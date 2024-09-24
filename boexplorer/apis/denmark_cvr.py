@@ -27,6 +27,12 @@ class DenmarkCVR(API):
                 "company_detail": None}
 
     @property
+    def return_json(self) -> dict:
+        """API returns json"""
+        return {"company_search": True,
+                "company_detail": None}
+
+    @property
     def post_pagination(self) -> bool:
         """API post pagination"""
         return True
@@ -168,7 +174,7 @@ class DenmarkCVR(API):
         """Extract relationship item data"""
         return data['attributes']['relationship']
 
-    def indentifier(self, data: dict) -> str:
+    def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data['cvr']
 
@@ -256,7 +262,7 @@ class DenmarkCVR(API):
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
        """Annotation of status for all entity statements (not generated as a result
        of a reporting exception)"""
-       ident = self.indentifier(data)
+       ident = self.identifier(data)
        registration_status = self.registation_status(data)
        return (f"DK Central Business Register data for this entity: {ident}; Registration Status: {registration_status}",
                "/")

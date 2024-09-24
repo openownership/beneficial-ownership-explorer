@@ -1,0 +1,8 @@
+
+[sources.uk_psc.credentials]
+user = ""
+pass = ""
+
+[sources.france_inpi.credentials]
+user = ""
+pass = ""

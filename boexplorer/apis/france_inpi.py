@@ -1,37 +1,40 @@
 import re
-from datetime import datetime
 from typing import Optional, Tuple, Union
 
 from parsel import Selector
 
 from boexplorer.apis.protocol import API
-from boexplorer.utils.text import to_local_script
+from boexplorer.utils.dates import current_date
+from boexplorer.download.authentication import authenticator
+from boexplorer.config import app_config
 
-
-class BulgarianCR(API):
-    """Handle accessing Bulgarian CR api"""
+class FranceINPI(API):
+    """Handle accessing French INPI api"""
 
     @property
     def authenticator(self) -> str:
         """API authenticator"""
-        return None
+        return authenticator(username=app_config["sources"]["france_inpi"]["credentials"]["user"],
+                             password=app_config["sources"]["france_inpi"]["credentials"]["pass"],
+                             auth_type="bearer",
+                             auth_url="https://registre-national-entreprises.inpi.fr/api/sso/login")
 
     @property
     def base_url(self) -> str:
         """API base url"""
-        return "https://portal.registryagency.bg/CR/api/Deeds"
+        return "https://registre-national-entreprises.inpi.fr/api/companies"
 
     @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": False}
+                "company_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": True}
+                "company_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -41,19 +44,19 @@ class BulgarianCR(API):
     @property
     def company_search_url(self) -> str:
         """API company search url"""
-        return f"{self.base_url}/Summary"
+        return f"{self.base_url}"
 
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
-        return f"{self.base_url}/{company_data['ident']}"
+        return None
 
     def to_local_characters(self, text):
-        """Transliterate into local cahracters"""
-        return to_local_script(text, "bg")
+        """Transliterate into local characters"""
+        return text
 
     def from_local_characters(self, text):
-        """Transliterate from local cahracters"""
-        return to_local_script(text, "bg", reverse=True)
+        """Transliterate from local characters"""
+        return text
 
     @property
     def page_size_par(self) -> Tuple[str, bool]:
@@ -68,16 +71,16 @@ class BulgarianCR(API):
     @property
     def page_size_max(self) -> int:
         """Maximum page size"""
-        return 25
+        return 5
 
     def query_company_name_params(self, text) -> dict:
         """Querying company name parameter"""
-        return {"name": text}
+        return {"companyName": text}
 
     @property
     def query_company_name_extra(self) -> str:
         """Querying company name extra parameters"""
-        return {"selectedSearchFilter": 1}
+        return {}
 
     def query_company_detail_params(self, company_data) -> dict:
         """Querying company detail parameters"""
@@ -86,8 +89,7 @@ class BulgarianCR(API):
     @property
     def query_company_detail_extra(self) -> str:
         """Querying company details extra parameters"""
-        return {"entryDate": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                "loadFieldsFromAllLegalForms": "true"}
+        return None
 
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
@@ -109,8 +111,6 @@ class BulgarianCR(API):
             if isinstance(json_data, list):
                 return True
             else:
-                if 'code' in json_data:
-                    print(f"Error: {json_data['code']} {json_data['message']}")
                 return False
 
     def filter_result(self, data: dict, detail=False) -> bool:
@@ -122,29 +122,11 @@ class BulgarianCR(API):
         return json_data
 
     def company_prepocessing(self, data: dict) -> dict:
-        self.pre_processed = {}
-        for section in data["sections"]:
-            section_name = section["nameCode"]
-            #self.pre_processed[section_name] = {}
-            for subdeed in section["subDeeds"]:
-                subdeed_name = subdeed["sectionName"]
-                #self.pre_processed[section_name][subdeed_name] = {}
-                for group in subdeed["groups"]:
-                    group_name = group["nameCode"]
-                    #self.pre_processed[section_name][subdeed_name][group_name] = {}
-                    for field in group["fields"]:
-                        field_name = field["nameCode"]
-                        selector = Selector(text=field["htmlData"])
-                        text = " ".join(selector.xpath('//text()').getall())
-                        latin = self.from_local_characters(text)
-                        #self.pre_processed[section_name][subdeed_name][group_name][field_name] = {'text': text}
-                        self.pre_processed[field_name] = {'text': text, 'date': field["fieldEntryDate"]}
-                        print(f"{field_name}: {latin} {text}")
-        print(self.pre_processed)
+        pass
 
     def extract_type(self, json_data: dict) -> Optional[str]:
         """Extract item type (entity, relationship or exception)"""
-        if "companyName" in json_data:
+        if "company_number" in json_data:
             return "entity"
         elif json_data["data"]["type"] == "relationship-records":
             return "relationship"
@@ -162,25 +144,30 @@ class BulgarianCR(API):
 
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
-        return data["uic"]
+        return data["formality"]["siren"]
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
-        return item["companyName"]
+        if "exploitation" in item["formality"]["content"]:
+            return item["formality"]["content"]["exploitation"]["identite"]["entreprise"]["denomination"]
+        if "personneMorale" in item["formality"]["content"]:
+            return item["formality"]["content"]["personneMorale"]["identite"]["entreprise"]["denomination"]
+        #["etablissementPrincipal"]["descriptionEtablissement"]["nomCommercial"]
+        return None
 
     def jurisdiction(self, item: dict) -> str:
         """Get jurisdiction"""
-        return "BG"
+        return "FR"
 
     @property
     def scheme(self) -> str:
         """Get scheme"""
-        return 'BG-EIK'
+        return 'FR-RCS'
 
     @property
     def scheme_name(self) -> str:
         """Get scheme name"""
-        return 'Commercial Register (Bulgaria)'
+        return 'Register of Companies (Sirene)'
 
     def additional_identifiers(self, item: dict) -> list:
         """Get list of additional identifiers"""
@@ -188,38 +175,27 @@ class BulgarianCR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"BG-EIK-{item['uic']}"
-
-    def _extract_address(self) -> dict:
-        address_data = self.pre_processed['CR_F_5_L']['text']
-        next_data = address_data.split('Държава:')
-        next_data = next_data[-1].split('Област:')
-        country = next_data[0].strip()
-        next_data = next_data[-1].split('Община:')
-        district = next_data[0].strip()
-        next_data = next_data[-1].split('място:')
-        municipality = next_data[0].strip()
-        next_data = next_data[-1].split('Телефон:')
-        address = next_data[0].strip()
-        next_data = next_data[-1].split('Факс:')
-        telephone = next_data[0].strip()
-        fax = next_data[-1].strip()
-        return {'country': country,
-                'district': district,
-                'municipality': municipality,
-                'address': address,
-                'telephone': telephone,
-                'fax': fax}
+        return f"FR-RCS-{item['formality']['siren']}"
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
-        address = self._extract_address()
-        return address
+        if "exploitation" in item["formality"]["content"]:
+            if "etablissementPrincipal" in item["formality"]["content"]["exploitation"]:
+                return item["formality"]["content"]["exploitation"]["etablissementPrincipal"]["adresse"]
+        if "personneMorale" in item["formality"]["content"]:
+            if "etablissementPrincipal" in item["formality"]["content"]["personneMorale"]:
+                return item["formality"]["content"]["personneMorale"]["etablissementPrincipal"]["adresse"]
+        return None
 
     def business_address(self, item: dict) -> dict:
         """Get registered address"""
-        address = self._extract_address()
-        return address
+        if "exploitation" in item["formality"]["content"]:
+            if "adresseEntreprise" in item["formality"]["content"]["exploitation"]:
+                return item["formality"]["content"]["exploitation"]["adresseEntreprise"]["adresse"]
+        if "personneMorale" in item["formality"]["content"]:
+            if "adresseEntreprise" in item["formality"]["content"]["personneMorale"]:
+                return item["formality"]["content"]["personneMorale"]["adresseEntreprise"]["adresse"]
+        return None
 
     def source_type(self, data: dict) -> str:
         """Get source type"""
@@ -228,37 +204,38 @@ class BulgarianCR(API):
     @property
     def source_description(self) -> str:
         """Get source description"""
-        return 'Bulgaria (Commercial Register)'
+        return 'Register of Companies (FR)'
 
     def address_string(self, address: dict) -> str:
         """Get address string"""
-        address = self._extract_address()
-        return address['address']
-
-    def address_country(self, address: dict) -> str:
-        """Get address country"""
-        address = self._extract_address()
-        if address['country'] == "БЪЛГАРИЯ":
-            return "BG"
-        else:
-            return address['country']
-
-    def address_postcode(self, address: dict) -> Optional[str]:
-        """Get address postcode"""
-        address = self._extract_address()
-        match = re.findall("[0-9]{4}", address['address'])
-        if match:
-            return match[0]
+        if address:
+            address_data = []
+            if "numVoie" in address and address["numVoie"]:
+                address_data.append(address["numVoie"])
+            if "typeVoie" in address and address["typeVoie"]:
+                address_data.append(address["typeVoie"])
+            if "voie" in address and address["voie"]:
+                address_data.append(address["voie"])
+            if "commune" in address and address["commune"]:
+                address_data.append(address["commune"])
+            return " ".join(address_data)
         else:
             return None
 
-    def _extract_creation_data(self) -> dict:
-        creation_data = self.pre_processed['CR_F_1_L']['date']
-        return creation_data
+    def address_country(self, address: dict) -> str:
+        """Get address country"""
+        return address["pays"] if "pays" in address else None
+
+    def address_postcode(self, address: dict) -> Optional[str]:
+        """Get address postcode"""
+        if "codePostal" in address:
+            return address["codePostal"]
+        else:
+            return None
 
     def creation_date(self, item: dict) -> Optional[str]:
         """Get creation date"""
-        creation_date = self._extract_creation_data()
+        creation_date = item["formality"]["content"]["natureCreation"]["dateCreation"]
         if creation_date:
             return creation_date.split("T")[0]
         else:
@@ -272,9 +249,9 @@ class BulgarianCR(API):
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
        """Annotation of status for all entity statements (not generated as a result
        of a reporting exception)"""
-       lei = self.identifier(data)
+       ident = self.identifier(data)
        registration_status = self.registation_status(data)
-       return (f"GLEIF data for this entity - LEI: {lei}; Registration Status: {registration_status}",
+       return (f"FR Register of Companies data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
 
     def subject_id(self, item: dict) -> str:
@@ -291,9 +268,7 @@ class BulgarianCR(API):
 
     def update_date(self, item: dict) -> str:
         """Get update date"""
-        dates = [self.pre_processed[field]['date'].split("T")[0] for field in self.pre_processed]
-        updated = sorted(dates, key=lambda d: datetime.strptime(d, "%Y-%m-%d"))[-1]
-        return updated
+        return item["updatedAt"]
 
     def interest_details(self, item: dict) -> str:
         """Get interest details"""

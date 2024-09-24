@@ -6,6 +6,7 @@ from parsel import Selector
 from boexplorer.apis.protocol import API
 from boexplorer.utils.dates import current_date
 from boexplorer.download.authentication import authenticator
+from boexplorer.config import app_config
 
 class UKPSC(API):
     """Handle accessing UK PSC api"""
@@ -13,7 +14,8 @@ class UKPSC(API):
     @property
     def authenticator(self) -> str:
         """API authenticator"""
-        return authenticator("29b63290-3828-40f1-b724-4bdb50f22639", "")
+        return authenticator(app_config["sources"]["uk_psc"]["credentials"]["user"],
+                             app_config["sources"]["uk_psc"]["credentials"]["pass"])
 
     @property
     def base_url(self) -> str:
@@ -24,6 +26,12 @@ class UKPSC(API):
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
+                "company_detail": None}
+
+    @property
+    def return_json(self) -> dict:
+        """API returns json"""
+        return {"company_search": True,
                 "company_detail": None}
 
     @property
@@ -151,7 +159,7 @@ class UKPSC(API):
         """Extract relationship item data"""
         return data['attributes']['relationship']
 
-    def indentifier(self, data: dict) -> str:
+    def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data['company_number']
 
@@ -238,7 +246,7 @@ class UKPSC(API):
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
        """Annotation of status for all entity statements (not generated as a result
        of a reporting exception)"""
-       ident = self.indentifier(data)
+       ident = self.identifier(data)
        registration_status = self.registation_status(data)
        return (f"UK Companies House data for this entity: {ident}; Registration Status: {registration_status}",
                "/")

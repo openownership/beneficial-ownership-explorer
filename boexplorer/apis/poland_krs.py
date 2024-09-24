@@ -27,6 +27,12 @@ class PolandKRS(API):
                 "company_detail": False}
 
     @property
+    def return_json(self) -> dict:
+        """API returns json"""
+        return {"company_search": True,
+                "company_detail": True}
+
+    @property
     def post_pagination(self) -> bool:
         """API post pagination"""
         return False
@@ -148,7 +154,7 @@ class PolandKRS(API):
         """Extract relationship item data"""
         return data['attributes']['relationship']
 
-    def indentifier(self, data: dict) -> str:
+    def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return f'{int(data["odpis"]["naglowekA"]["numerKRS"]):010d}'
 
@@ -237,7 +243,7 @@ class PolandKRS(API):
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
        """Annotation of status for all entity statements (not generated as a result
        of a reporting exception)"""
-       ident = self.indentifier(data)
+       ident = self.identifier(data)
        registration_status = self.registation_status(data)
        return (f"Polish National Court Register data for this entity: {ident}; Registration Status: {registration_status}",
                "/")

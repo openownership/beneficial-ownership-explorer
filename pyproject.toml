@@ -11,7 +11,8 @@ dependencies = ["reflex",
                 "transliterate",
                 "geopy",
                 "plotly",
-                "parsel"]
+                "parsel",
+                "random-user-agent"]
 readme="README.md"
 license = {text= "AGPLv3"}
 authors = [
