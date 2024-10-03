@@ -21,16 +21,25 @@ class DenmarkCVR(API):
         return 'https://datacvr.virk.dk/gateway/soeg/fritekst'
 
     @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 15
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+                "person_search": True,
+                "person_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+                "person_search": True,
+                "person_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -43,6 +52,15 @@ class DenmarkCVR(API):
         return f"{self.base_url}"
 
     def company_detail_url(self, company_data) -> str:
+        """API company detail url"""
+        return None
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return f"{self.base_url}"
+
+    def person_detail_url(self, company_data) -> str:
         """API company detail url"""
         return None
 
@@ -106,13 +124,37 @@ class DenmarkCVR(API):
 
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
-        return {"fritekstCommand": {"enhedstype": "person",
-                                    "soegOrd": text}}
+        return {"fritekstCommand": {"antalAnsatte": [],
+                                  "branchekode": "",
+                                  "enhedstype": "person",
+                                  "kommune": [],
+                                  "ophoersdatoFra": "",
+                                  "ophoersdatoTil": "",
+                                  "personrolle": [],
+                                  "region": [],
+                                  "sideIndex": "0",
+                                  "size": ["10"],
+                                  "soegOrd": text,
+                                  "sortering": "",
+                                  "startdatoFra": "",
+                                  "startdatoTil": "",
+                                  "virksomhedsform": [],
+                                  "virksomhedsmarkering": [],
+                                  "virksomhedsstatus": []}}
 
     @property
     def query_person_name_extra(self) -> str:
         """Querying person name extra parameters"""
-        return {}
+        return None
+
+    def query_person_detail_params(self, person_data) -> dict:
+        """Querying company detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying company details extra parameters"""
+        return None
 
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
         """Check successful return value"""
@@ -156,6 +198,9 @@ class DenmarkCVR(API):
                         print(f"{field_name}: {latin} {text}")
         print(self.pre_processed)
 
+    def person_prepocessing(self, data: dict) -> dict:
+        self.pre_processed = None
+
     def extract_type(self, json_data: dict) -> Optional[str]:
         """Extract item type (entity, relationship or exception)"""
         if "enhedstype" in json_data and json_data["enhedstype"] == "virksomhed":
@@ -170,6 +215,10 @@ class DenmarkCVR(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -177,6 +226,25 @@ class DenmarkCVR(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data['cvr']
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        #if "senesteNavn" in item:
+        #if 'affiliatesFirstname' in data and data['affiliatesFirstname']:
+        #    name = f"{data['affiliatesFirstname'].strip()}-{data['affiliatesSurname'].strip().replace(' ', '-')}"
+        #    address_number = data['affiliatesStreetNumber'].strip().split()[-1:] if data['affiliatesStreetNumber'].strip() else []
+        #    address_components = address_number + data["affiliatesAddress"].strip().split()
+        #    first_comps = []
+        #    last_comp = None
+        #    for comp in address_components:
+        #        if comp:
+        #            if not last_comp or (comp != last_comp):
+        #                first_comps.append(comp)
+        #    #address_components = [comp for comp in address_components if comp]
+        #    address = f"{first_comps[0]}-{first_comps[1]}"
+        #    return f"NG-CAC-BOR-{name}-{address}"
+        #else:
+        return f"DK-CVR-PER-{data['enhedsnummer']}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -202,7 +270,10 @@ class DenmarkCVR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"DK-CVR-{item['cvr']}"
+        if 'cvr' in item:
+            return f"DK-CVR-{item['cvr']}"
+        else:
+            return self.person_identifier(item)
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
@@ -211,6 +282,10 @@ class DenmarkCVR(API):
     def business_address(self, item: dict) -> dict:
         """Get registered address"""
         return None
+
+    def person_address(self, item: dict) -> dict:
+        """Get person address"""
+        return item
 
     def source_type(self, data: dict) -> str:
         """Get source type"""
@@ -260,12 +335,43 @@ class DenmarkCVR(API):
         return None
 
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
-       """Annotation of status for all entity statements (not generated as a result
-       of a reporting exception)"""
-       ident = self.identifier(data)
-       registration_status = self.registation_status(data)
-       return (f"DK Central Business Register data for this entity: {ident}; Registration Status: {registration_status}",
+        """Annotation of status for all entity statements (not generated as a result
+        of a reporting exception)"""
+        ident = self.identifier(data)
+        registration_status = self.registation_status(data)
+        return (f"DK Central Business Register data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all entity statements (not generated as a result
+        of a reporting exception)"""
+        ident = self.person_identifier(data)
+        #registration_status = self.registation_status(data)
+        return (f"DK Central Business Register data for this person: {ident}",
+               "/")
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        names = item["senesteNavn"].split()
+        famliy_name = names[-1]
+        first_name = names[0]
+        return item["senesteNavn"], famliy_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return None
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "taxResidencyOrJurisdiction" in item and item["taxResidencyOrJurisdiction"]:
+            return item["taxResidencyOrJurisdiction"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if "senesteNavn" in item and item["senesteNavn"]:
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""

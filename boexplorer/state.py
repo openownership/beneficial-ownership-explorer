@@ -3,13 +3,14 @@ from typing import List, Any
 import reflex as rx
 
 #from boexplorer.display.details import entity_details
-from boexplorer.display.table import construct_table
-from boexplorer.search import perform_search
+from boexplorer.display.table import construct_company_table, construct_summary_table
+from boexplorer.search import perform_company_search, perform_person_search
 
 class ExplorerState(rx.State):
     """The app state."""
     bods_data: dict = {}
     data_table: List = []
+    summary_columns: List[str] = ["Source", "Country", "Companies", "Individuals"]
     columns: list[Any] = [
         {
             "title": "Name",
@@ -37,14 +38,31 @@ class ExplorerState(rx.State):
     detail_identifier: str = ""
     detail_statement: dict = {}
 
-    def get_search_result(self, form_data: dict[str, str]):
-        self.searching = True
-        self.bods_data = perform_search(form_data["search_text"])
-        self.data_table = construct_table(self.bods_data)
-        print(self.data_table)
-        self.searching = False
-        self.display_table = True
-        return rx.redirect("/results")
+    @rx.background
+    async def get_search_result(self, form_data: dict[str, str]):
+        print("Form data:", form_data)
+        async with self:
+            self.searching = True
+        if form_data["search_type"] == 'Company search':
+            bods_data = perform_company_search(form_data["search_text"])
+            #self.data_table = construct_company_table(self.bods_data)
+            data_table = construct_summary_table(bods_data)
+            print(data_table)
+            async with self:
+                self.bods_data = bods_data
+                self.data_table = data_table
+                self.searching = False
+                self.display_table = True
+            return rx.redirect("/companies")
+        else:
+            bods_data = perform_person_search(form_data["search_text"])
+            data_table = construct_summary_table(bods_data)
+            async with self:
+                self.bods_data = bods_data
+                self.data_table = data_table
+                self.searching = False
+                self.display_table = True
+            return rx.redirect("/persons")
 
     def get_detail(self, pos):
         col, row = pos

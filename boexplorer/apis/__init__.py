@@ -13,7 +13,7 @@ from boexplorer.data.data import load_data
 
 scheme_data = load_data()
 
-search_apis = [GLEIF(scheme_data=scheme_data),
+search_companies_apis = [GLEIF(scheme_data=scheme_data),
                BulgarianCR(),
                UKPSC(),
                NigerianCAC(),
@@ -22,5 +22,10 @@ search_apis = [GLEIF(scheme_data=scheme_data),
                LatviaUR(),
                PolandKRS(),
                EstoniaRIK(),
-               FranceINPI(),
+               #FranceINPI(),
                CzechCR()]
+
+search_persons_apis = [BulgarianCR(),
+		       NigerianCAC(),
+                       DenmarkCVR(),
+               ]

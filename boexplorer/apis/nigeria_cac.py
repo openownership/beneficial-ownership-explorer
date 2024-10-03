@@ -21,16 +21,25 @@ class NigerianCAC(API):
         return "https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it"
 
     @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 90
+
+    @property
     def http_post(self) -> dict:
         """API http method"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+		        "person_search": True,
+                "person_detail": True}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+                "person_search": True,
+                "person_detail": True}
 
     @property
     def post_pagination(self) -> bool:
@@ -40,13 +49,20 @@ class NigerianCAC(API):
     @property
     def company_search_url(self) -> str:
         """API company search url"""
-        #return f"{self.base_url}/get_psc"
         return f"{self.base_url}"
 
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
-        #return f"{self.base_url}/get_psc_details"
         return None
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return "https://borapp.cac.gov.ng/borapp/api/bor-search/get_psc"
+
+    def person_detail_url(self, company_data) -> str:
+        """API company detail url"""
+        return "https://borapp.cac.gov.ng/borapp/api/bor-search/get_psc_details"
 
     def to_local_characters(self, text):
         """Transliterate into local characters"""
@@ -59,12 +75,14 @@ class NigerianCAC(API):
     @property
     def page_size_par(self) -> Tuple[str, bool]:
         """Page size parameter"""
-        return "limit", False
+        #return "limit", False
+        return None, False
 
     @property
     def page_number_par(self) -> Tuple[str, int]:
         """Page number parameter"""
-        return "page", 1
+        #return "page", 1
+        return None, 1
 
     @property
     def page_size_max(self) -> int:
@@ -92,17 +110,28 @@ class NigerianCAC(API):
 
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
-        return None
+        return {"searchItem": text, "searchType": "PSC FULLNAME"}
 
     @property
     def query_person_name_extra(self) -> str:
         """Querying person name extra parameters"""
         return None
 
+    def query_person_detail_params(self, person_data) -> dict:
+        """Querying company detail parameters"""
+        return {"id": person_data["companyId"]}
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying company details extra parameters"""
+        return None
+
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
         """Check successful return value"""
         if detail:
             if isinstance(json_data, dict) and "companyName" in json_data:
+                return True
+            elif isinstance(json_data, list) and len(json_data) > 0 and "affiliatesFirstname" in json_data[0]:
                 return True
             else:
                 return False
@@ -117,12 +146,17 @@ class NigerianCAC(API):
         if not 'rcNumber' in data or not data['rcNumber']:
             return True
         else:
-            return False
+            if "affiliateIsCorporate" in data and data["affiliateIsCorporate"]:
+                return True
+            else:
+                return False
 
     def extract_data(self, json_data: dict) -> dict:
         """Extract main data body from json data"""
         if isinstance(json_data, dict) and "data" in json_data and json_data['data']:
             return json_data['data']['data']
+        elif isinstance(json_data, list):
+            return json_data
         else:
             return None
 
@@ -147,6 +181,9 @@ class NigerianCAC(API):
                         print(f"{field_name}: {latin} {text}")
         print(self.pre_processed)
 
+    def person_prepocessing(self, data: dict) -> dict:
+        pass
+
     def extract_type(self, json_data: dict) -> Optional[str]:
         """Extract item type (entity, relationship or exception)"""
         if "rcNumber" in json_data:
@@ -161,6 +198,10 @@ class NigerianCAC(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -168,6 +209,24 @@ class NigerianCAC(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return f"RC{data['rcNumber']}"
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        if 'affiliatesFirstname' in data and data['affiliatesFirstname']:
+            name = f"{data['affiliatesFirstname'].strip()}-{data['affiliatesSurname'].strip().replace(' ', '-')}"
+            address_number = data['affiliatesStreetNumber'].strip().split()[-1:] if data['affiliatesStreetNumber'].strip() else []
+            address_components = address_number + data["affiliatesAddress"].strip().split()
+            first_comps = []
+            last_comp = None
+            for comp in address_components:
+                if comp:
+                    if not last_comp or (comp != last_comp):
+                        first_comps.append(comp)
+            #address_components = [comp for comp in address_components if comp]
+            address = f"{first_comps[0]}-{first_comps[1]}"
+            return f"NG-CAC-BOR-{name}-{address}"
+        else:
+            return f"NG-CAC-BOR-{data['id']}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -193,10 +252,23 @@ class NigerianCAC(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"NG-CAC-RC{item['rcNumber']}"
+        if "rcNumber" in item:
+            return f"NG-CAC-RC{item['rcNumber']}"
+        else:
+            ident = self.person_identifier(item)
+            return ident
 
-    def _extract_address(self) -> dict:
-        return {'country': "NG",
+    def _extract_address(self, item) -> dict:
+        if "affiliatesAddress" in item:
+            return {'country': "NG",
+                    'district': item["affiliatesState"],
+                    'municipality': item["affiliatesCity"],
+                    'address': " ".join([item["affiliatesStreetNumber"].strip(),
+                                        item["affiliatesAddress"].strip()]).strip(),
+                    'telephone': None,
+                    'fax': None}
+        else:
+            return {'country': "NG",
                 'district': None,
                 'municipality': None,
                 'address': None,
@@ -205,13 +277,17 @@ class NigerianCAC(API):
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
-        address = self._extract_address()
+        address = self._extract_address(item)
         return address
 
     def business_address(self, item: dict) -> dict:
         """Get registered address"""
-        address = self._extract_address()
+        address = self._extract_address(item)
         return address
+
+    def person_address(self, item: dict) -> dict:
+        """Get person address"""
+        return item
 
     def source_type(self, data: dict) -> str:
         """Get source type"""
@@ -224,18 +300,21 @@ class NigerianCAC(API):
 
     def address_string(self, address: dict) -> str:
         """Get address string"""
-        address = self._extract_address()
+        address = self._extract_address(address)
         return address['address']
 
     def address_country(self, address: dict) -> str:
         """Get address country"""
-        address = self._extract_address()
+        address = self._extract_address(address)
         return address['country']
 
     def address_postcode(self, address: dict) -> Optional[str]:
         """Get address postcode"""
-        address = self._extract_address()
-        return None
+        if "affiliatesPostcode" in address:
+            return address["affiliatesPostcode"]
+        else:
+            #address = self._extract_address()
+            return None
 
     def creation_date(self, item: dict) -> Optional[str]:
         """Get creation date"""
@@ -251,12 +330,44 @@ class NigerianCAC(API):
         return data["status"]
 
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
-       """Annotation of status for all entity statements (not generated as a result
-       of a reporting exception)"""
-       ident = self.identifier(data)
-       registration_status = self.registation_status(data)
-       return (f"Nigerina CAC data for this entity: {ident}; Registration Status: {registration_status}",
+        """Annotation of status for all entity statements (not generated as a result
+        of a reporting exception)"""
+        ident = self.identifier(data)
+        registration_status = self.registation_status(data)
+        return (f"Nigerina CAC data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements (not generated as a result of a reporting exception)"""
+        ident = self.person_identifier(data)
+        #registration_status = self.registation_status(data)
+        return (f"Nigerina CAC BOR data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        famliy_name = item['affiliatesSurname']
+        first_name = item['affiliatesFirstname']
+        other_name = item['otherName']
+        full_name = " ".join([name for name in (first_name, other_name, famliy_name) if name])
+        return full_name, famliy_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return item["dateOfBirth"]
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "taxResidencyOrJurisdiction" in item and item["taxResidencyOrJurisdiction"]:
+            return item["taxResidencyOrJurisdiction"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        for name in ('affiliatesFirstname', 'affiliatesSurname', 'otherName'):
+            if name in item and item[name]:
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""

@@ -22,16 +22,25 @@ class BulgarianCR(API):
         return "https://portal.registryagency.bg/CR/api/Deeds"
 
     @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 15
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": False}
+                "company_detail": False,
+                "person_search": False,
+                "person_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": True}
+                "company_detail": True,
+                "person_search": True,
+                "person_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -46,6 +55,15 @@ class BulgarianCR(API):
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
         return f"{self.base_url}/{company_data['ident']}"
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return "https://portal.registryagency.bg/CR/api/Deeds/Subjects"
+
+    def person_detail_url(self, company_data) -> str:
+        """API company detail url"""
+        return None
 
     def to_local_characters(self, text):
         """Transliterate into local cahracters"""
@@ -91,11 +109,23 @@ class BulgarianCR(API):
 
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
-        return None
+        return {"page": 1,
+                "pageSize": 25,
+                "name": text,
+                "selectedSearchFilter": 0}
 
     @property
     def query_person_name_extra(self) -> str:
         """Querying person name extra parameters"""
+        return None
+
+    def query_person_detail_params(self, person_data) -> dict:
+        """Querying company detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying company details extra parameters"""
         return None
 
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
@@ -142,6 +172,9 @@ class BulgarianCR(API):
                         print(f"{field_name}: {latin} {text}")
         print(self.pre_processed)
 
+    def person_prepocessing(self, data: dict) -> dict:
+        self.pre_processed = None
+
     def extract_type(self, json_data: dict) -> Optional[str]:
         """Extract item type (entity, relationship or exception)"""
         if "companyName" in json_data:
@@ -156,6 +189,10 @@ class BulgarianCR(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -163,6 +200,11 @@ class BulgarianCR(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data["uic"]
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        name = data['name'].strip().replace(' ', '-')
+        return f"BG-EIK-PER-{name}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -188,28 +230,39 @@ class BulgarianCR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"BG-EIK-{item['uic']}"
+        if 'uic' in item:
+            return f"BG-EIK-{item['uic']}"
+        else:
+            return self.person_identifier(item)
 
     def _extract_address(self) -> dict:
-        address_data = self.pre_processed['CR_F_5_L']['text']
-        next_data = address_data.split('Държава:')
-        next_data = next_data[-1].split('Област:')
-        country = next_data[0].strip()
-        next_data = next_data[-1].split('Община:')
-        district = next_data[0].strip()
-        next_data = next_data[-1].split('място:')
-        municipality = next_data[0].strip()
-        next_data = next_data[-1].split('Телефон:')
-        address = next_data[0].strip()
-        next_data = next_data[-1].split('Факс:')
-        telephone = next_data[0].strip()
-        fax = next_data[-1].strip()
-        return {'country': country,
+        if hasattr(self, "pre_processed"):
+            address_data = self.pre_processed['CR_F_5_L']['text']
+            next_data = address_data.split('Държава:')
+            next_data = next_data[-1].split('Област:')
+            country = next_data[0].strip()
+            next_data = next_data[-1].split('Община:')
+            district = next_data[0].strip()
+            next_data = next_data[-1].split('място:')
+            municipality = next_data[0].strip()
+            next_data = next_data[-1].split('Телефон:')
+            address = next_data[0].strip()
+            next_data = next_data[-1].split('Факс:')
+            telephone = next_data[0].strip()
+            fax = next_data[-1].strip()
+            return {'country': country,
                 'district': district,
                 'municipality': municipality,
                 'address': address,
                 'telephone': telephone,
                 'fax': fax}
+        else:
+            return {'country': None,
+                    'district': None,
+                    'municipality': None,
+                    'address': None,
+                    'telephone': None,
+                    'fax': None}
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
@@ -220,6 +273,10 @@ class BulgarianCR(API):
         """Get registered address"""
         address = self._extract_address()
         return address
+
+    def person_address(self, item: dict) -> dict:
+        """Get person address"""
+        return item
 
     def source_type(self, data: dict) -> str:
         """Get source type"""
@@ -270,12 +327,42 @@ class BulgarianCR(API):
         return None
 
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
-       """Annotation of status for all entity statements (not generated as a result
-       of a reporting exception)"""
-       lei = self.identifier(data)
-       registration_status = self.registation_status(data)
-       return (f"GLEIF data for this entity - LEI: {lei}; Registration Status: {registration_status}",
+        """Annotation of status for all entity statements (not generated as a result
+        of a reporting exception)"""
+        lei = self.identifier(data)
+        registration_status = self.registation_status(data)
+        return (f"GLEIF data for this entity - LEI: {lei}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements (not generated as a result of a reporting exception)"""
+        ident = self.person_identifier(data)
+        #registration_status = self.registation_status(data)
+        return (f"Bulgarian EIK data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        names = item["name"].split()
+        famliy_name = names[-1]
+        first_name = names[0]
+        return item["name"], famliy_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return None
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "taxResidencyOrJurisdiction" in item and item["taxResidencyOrJurisdiction"]:
+            return item["taxResidencyOrJurisdiction"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if 'name' in item and item['name']:
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""
@@ -291,9 +378,12 @@ class BulgarianCR(API):
 
     def update_date(self, item: dict) -> str:
         """Get update date"""
-        dates = [self.pre_processed[field]['date'].split("T")[0] for field in self.pre_processed]
-        updated = sorted(dates, key=lambda d: datetime.strptime(d, "%Y-%m-%d"))[-1]
-        return updated
+        if not hasattr(self, "pre_processed"):
+            return datetime.now().strftime("%Y-%m-%d")
+        else:
+            dates = [self.pre_processed[field]['date'].split("T")[0] for field in self.pre_processed]
+            updated = sorted(dates, key=lambda d: datetime.strptime(d, "%Y-%m-%d"))[-1]
+            return updated
 
     def interest_details(self, item: dict) -> str:
         """Get interest details"""

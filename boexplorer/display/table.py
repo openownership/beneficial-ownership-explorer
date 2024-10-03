@@ -13,9 +13,19 @@ def merge_records(record_id, records):
     founding_date = records[0]["recordDetails"]["foundingDate"]
     return [name, jurisdiction, record_id, not_none(founding_date), list_all(records)]
 
-def construct_table(bods_data):
+def source_summary(source_id, data):
+    return [data['name'], data['country'], data['entity_count'], data['person_count']]
+
+def construct_company_table(bods_data):
     table = []
     for record_id in bods_data['entities']:
         row = merge_records(record_id, bods_data['entities'][record_id])
+        table.append(row)
+    return table
+
+def construct_summary_table(bods_data):
+    table = []
+    for source_id in bods_data['sources']:
+        row = source_summary(source_id, bods_data['sources'][source_id])
         table.append(row)
     return table

@@ -19,6 +19,13 @@ def format_address(address_type, address, api):
     else:
         return None
 
+def format_name(name_type, name_data, api):
+    """Format name structure"""
+    full_name, famliy_name, first_name, patronymic_name = api.person_name_components(name_data)
+    name = {'type': name_type, 'fullName': full_name, 'familyName': famliy_name,
+           'givenName': first_name, 'patronymicName': patronymic_name}
+    return name
+
 def publication_details():
     """Generate publication details"""
     return {'publicationDate': current_date_iso(), # TODO: fix publication date
@@ -111,6 +118,71 @@ def transform_entity(data, api):
                #"uri": ,
                #"publicListing": ,
                #"formedByStatute": ,
+           },
+           'annotations': annotations,
+           'publicationDetails': publication_details(),
+           'source': source
+          }
+    return out
+
+def person_id(item, api):
+    """Identifier for person"""
+    ident = api.person_identifier(item)
+    last_update = api.update_date(item)
+    return f"{ident}_{last_update}"
+
+def transform_person(data, api):
+    """Transform into BODS v0.4 entity"""
+    item = api.extract_person_item(data)
+    statementID = generate_statement_id(person_id(data, api), 'person')
+    recordType = 'person'
+    recordID = api.record_id(data)
+    statementDate = format_date(api.update_date(data))
+    unspecified = api.unspecified_person(item)
+    if not unspecified:
+        legal_name = format_name('legal', data, api)
+        identifiers = [{'id': api.person_identifier(data),
+                    'scheme': api.scheme,
+                    'schemeName': api.scheme_name}]
+        address = api.person_address(item)
+        if address:
+            personAddress = format_address('residence', address, api)
+        else:
+            personAddress = None
+        birth_date = api.person_birth_date(item)
+        tax_residency = api.person_tax_residency(item)
+    else:
+        legal_name = None
+        identifiers = None
+        personAddress = None
+        birth_date = None
+        tax_residency = None
+    #identifiers += api.additional_identifiers(item)
+    source = data_source(data, api)
+    country = jurisdiction_name(api.jurisdiction(item))
+    jurisdiction = {'name': country, 'code': api.jurisdiction(item)}
+    annotations = []
+    annotation_text, annotation_pointer = api.person_annotation(data)
+    add_annotation(annotations, annotation_text, annotation_pointer)
+    out = {"statementId": statementID,
+           "declarationSubject": recordID,
+           "statementDate": statementDate,
+           "recordId": recordID,
+           "recordStatus": "new",
+           "recordType": recordType,
+           "recordDetails": {
+               "isComponent": False,
+               "personType": "knownPerson" if not unspecified else "unknownPerson",
+               #"unspecifiedPersonDetails": ,
+               "names": [legal_name] if legal_name else [],
+               "identifiers": identifiers if identifiers else [],
+               #"nationalities": ,
+               #"placeOfBirthAddress": ,
+               "birthDate": birth_date,
+               #"deathDate": ,
+               "taxResidencies": [tax_residency] if tax_residency else [],
+               "addresses": build_addresses(personAddress, None) if personAddress else [],
+               #"politicalExposure": ,
            },
            'annotations': annotations,
            'publicationDetails': publication_details(),
