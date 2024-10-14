@@ -23,16 +23,27 @@ class CzechCR(API):
         return "https://or.justice.cz/ias/ui/rejstrik-$firma"
 
     @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 15
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": None,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": False,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": None,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -46,6 +57,15 @@ class CzechCR(API):
 
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
+        return None
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return None
+
+    def person_detail_url(self, company_data) -> str:
+        """API person detail url"""
         return None
 
     def to_local_characters(self, text):
@@ -99,6 +119,15 @@ class CzechCR(API):
         """Querying person name extra parameters"""
         return None
 
+    def query_person_detail_params(self, company_data) -> dict:
+        """Querying person detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying person details extra parameters"""
+        return None
+
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
         """Check successful return value"""
         if detail:
@@ -112,7 +141,7 @@ class CzechCR(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 
@@ -157,6 +186,10 @@ class CzechCR(API):
     def scheme(self) -> str:
         """Get scheme"""
         return "CZ-CR"
+
+    @property
+    def search_url(self) -> str:
+        return 'https://or.justice.cz/ias/ui/rejstrik-$firma'
 
     @property
     def scheme_name(self) -> str:

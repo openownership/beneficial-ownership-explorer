@@ -1,3 +1,4 @@
+from thefuzz import fuzz
 from typing import Optional, Tuple, Union
 
 from boexplorer.apis.protocol import API
@@ -18,16 +19,27 @@ class LatviaUR(API):
         return "https://info.ur.gov.lv/api"
 
     @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 15
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": None,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": None,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -41,6 +53,15 @@ class LatviaUR(API):
 
     def company_detail_url(self, company_data: dict) -> str:
         """API company detail url"""
+        return None
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return None
+
+    def person_detail_url(self, company_data) -> str:
+        """API person detail url"""
         return None
 
     def to_local_characters(self, text):
@@ -93,6 +114,15 @@ class LatviaUR(API):
         """Querying person name extra parameters"""
         return None
 
+    def query_person_detail_params(self, company_data) -> dict:
+        """Querying person detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying person details extra parameters"""
+        return None
+
     def check_result(self, json_data: Union[dict, list]) -> bool:
         """Check successful return value"""
         if isinstance(json_data, dict) and "responseHeader" in json_data:
@@ -102,9 +132,15 @@ class LatviaUR(API):
             #    print(f"Error: {json_data['code']} {json_data['message']}")
             return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
-        return False
+        if search and data['name']:
+            if fuzz.ratio(search, data['name']) > 50:
+                return False
+            else:
+                return True
+        else:
+            return False
 
     def extract_data(self, json_data: dict) -> dict:
         """Extract main data body from json data"""
@@ -144,6 +180,11 @@ class LatviaUR(API):
     def scheme(self) -> str:
         """Get scheme"""
         return "LV-RE"
+
+    @property
+    def search_url(self) -> str:
+        """URL for manual search"""
+        return 'https://info.ur.gov.lv/#/data-search'
 
     @property
     def scheme_name(self) -> str:

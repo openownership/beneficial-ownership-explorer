@@ -18,20 +18,29 @@ class SlovakiaORSR(API):
     @property
     def base_url(self) -> str:
         """API base url"""
-        return "https://api.statistics.sk/rpo/v1/search"
+        return "https://api.statistics.sk/rpo/v1"
+
+    @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 15
 
     @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": None}
-
+                "company_detail": None,
+                "company_persons": False,
+                "person_search": None,
+                "person_detail": None}
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": None}
-
+                "company_detail": None,
+                "company_persons": True,
+                "person_search": None,
+                "person_detail": None}
     @property
     def post_pagination(self) -> bool:
         """API post pagination"""
@@ -40,10 +49,24 @@ class SlovakiaORSR(API):
     @property
     def company_search_url(self) -> str:
         """API company search url"""
-        return f"{self.base_url}"
+        return f"{self.base_url}/search"
 
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
+        return None
+
+    def company_persons_url(self, company_data) -> str:
+        """API company detail url"""
+        identifier = company_data['id']
+        return f"{self.base_url}/entity/{identifier}"
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return None
+
+    def person_detail_url(self, company_data) -> str:
+        """API person detail url"""
         return None
 
     def to_local_characters(self, text):
@@ -87,13 +110,26 @@ class SlovakiaORSR(API):
         """Querying company details extra parameters"""
         return None
 
-    def query_person_name_params(self, text) -> dict:
-        """Querying person name parameter"""
+    def query_company_persons_params(self, company_data) -> dict:
+        """Querying company name parameter"""
+        return {"showHistoricalData": True}
+
+    def query_person_name_params(self, company_data) -> dict:
+        """Querying person name parameters"""
         return None
 
     @property
     def query_person_name_extra(self) -> str:
         """Querying person name extra parameters"""
+        return None
+
+    def query_person_detail_params(self, company_data) -> dict:
+        """Querying person detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying person details extra parameters"""
         return None
 
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
@@ -109,7 +145,7 @@ class SlovakiaORSR(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 
@@ -152,6 +188,18 @@ class SlovakiaORSR(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
+    def extract_entity_persons_items(self, data: dict) -> dict:
+        """Extract entity person item data"""
+        items = []
+        if "kuvPersonsInfo" in data and data["kuvPersonsInfo"]:
+            for item in data["kuvPersonsInfo"]:
+                items.append(item)
+        return items
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -166,6 +214,11 @@ class SlovakiaORSR(API):
         """Get entity identifier"""
         latest = self._extract_latest(data["identifiers"])
         return latest["value"] if latest else None
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        names = data["personName"]["formatedName"].replace(" ", "-")
+        return f"PL-ORSR-PER-{names}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -182,6 +235,11 @@ class SlovakiaORSR(API):
         return "SK-ORSR"
 
     @property
+    def search_url(self) -> str:
+        """URL for manual search"""
+        return 'https://www.orsr.sk/search_subjekt.asp?lan=en'
+
+    @property
     def scheme_name(self) -> str:
         """Get scheme name"""
         return "Business Register"
@@ -192,8 +250,11 @@ class SlovakiaORSR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        identifier = self.identifier(item)
-        return f"SK-ORSR-{identifier}"
+        if "establishment" in item:
+            identifier = self.identifier(item)
+            return f"SK-ORSR-{identifier}"
+        else:
+            return self.person_identifier(item)
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
@@ -204,6 +265,10 @@ class SlovakiaORSR(API):
 
     def business_address(self, item: dict) -> dict:
         """Get registered address"""
+        return None
+
+    def person_address(self, item: dict) -> dict:
+        """Get person address"""
         return None
 
     def source_type(self, data: dict) -> str:
@@ -228,7 +293,8 @@ class SlovakiaORSR(API):
                 address_data.append(address["municipality"]["value"])
             if "postalCodes" in address and len(address["postalCodes"]) > 0:
                 address_data.append(address["postalCodes"][0])
-            return f"{address_data[1]} {address_data[0]}, {address_data[2]} {address_data[3]}"
+            #return f"{address_data[1]} {address_data[0]}, {address_data[2]} {address_data[3]}"
+            return f"{address_data[0]} {', '.join(address_data[1:])}"
         else:
             return None
 
@@ -260,6 +326,37 @@ class SlovakiaORSR(API):
        registration_status = self.registation_status(data)
        return (f"Slokavian Business Register data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements (not generated as a result of a reporting exception)"""
+        ident = self.person_identifier(data)
+        #registration_status = self.registation_status(data)
+        return (f"Slokavian Business Register data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        family_name = item["personName"]["familyNames"]
+        middle_name = None
+        first_name = item["personName"]["givenNames"]
+        names = item["personName"]["formatedName"]
+        return names, family_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return None
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "country" in item and item["country"]["value"]:
+            return item["country"]["value"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if "personName" in item and item["personName"]:
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""

@@ -1,4 +1,5 @@
 import re
+from datetime import date
 from typing import Optional, Tuple, Union
 
 from parsel import Selector
@@ -25,16 +26,27 @@ class FranceINPI(API):
         return "https://registre-national-entreprises.inpi.fr/api/companies"
 
     @property
+    def http_timeout(self) -> int:
+        """API http method"""
+        return 15
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": None,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": True,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -48,6 +60,19 @@ class FranceINPI(API):
 
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
+        return None
+
+    def company_persons_url(self, company_data) -> str:
+        """API company persons url"""
+        return None
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return None
+
+    def person_detail_url(self, company_data) -> str:
+        """API person detail url"""
         return None
 
     def to_local_characters(self, text):
@@ -91,13 +116,26 @@ class FranceINPI(API):
         """Querying company details extra parameters"""
         return None
 
-    def query_person_name_params(self, text) -> dict:
-        """Querying person name parameter"""
+    def query_company_persons_params(self, data) -> dict:
+        """Querying company name parameter"""
+        return None
+
+    def query_person_name_params(self, company_data) -> dict:
+        """Querying person name parameters"""
         return None
 
     @property
     def query_person_name_extra(self) -> str:
         """Querying person name extra parameters"""
+        return None
+
+    def query_person_detail_params(self, company_data) -> dict:
+        """Querying person detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying person details extra parameters"""
         return None
 
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
@@ -113,7 +151,7 @@ class FranceINPI(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 
@@ -138,6 +176,23 @@ class FranceINPI(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
+    def extract_entity_persons_items(self, data: dict) -> dict:
+        """Extract entity person item data"""
+        items = []
+        for company in data:
+            if "personneMorale" in company["formality"]["content"]:
+                entity = company["formality"]["content"]["personneMorale"]
+                #print("Entity:", entity)
+                if "beneficiairesEffectifs" in entity:
+                    for person in entity["beneficiairesEffectifs"]:
+                        items.append(person)
+        #print("Person items:", items)
+        return items
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -145,6 +200,13 @@ class FranceINPI(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data["formality"]["siren"]
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        family_name = data["beneficiaire"]["descriptionPersonne"]["nom"]
+        first_names = data["beneficiaire"]["descriptionPersonne"]["prenoms"]
+        names = " ".join(first_names + [family_name])
+        return f"FR-RCS-PER-{names.replace(' ', '-')}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -165,6 +227,11 @@ class FranceINPI(API):
         return 'FR-RCS'
 
     @property
+    def search_url(self) -> str:
+        """URL for manual search"""
+        return 'https://registre-national-entreprises.inpi.fr/login'
+
+    @property
     def scheme_name(self) -> str:
         """Get scheme name"""
         return 'Register of Companies (Sirene)'
@@ -175,7 +242,10 @@ class FranceINPI(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"FR-RCS-{item['formality']['siren']}"
+        if 'formality' in item:
+            return f"FR-RCS-{item['formality']['siren']}"
+        else:
+            return self.person_identifier(item)
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
@@ -235,9 +305,12 @@ class FranceINPI(API):
 
     def creation_date(self, item: dict) -> Optional[str]:
         """Get creation date"""
-        creation_date = item["formality"]["content"]["natureCreation"]["dateCreation"]
-        if creation_date:
-            return creation_date.split("T")[0]
+        if "dateCreation" in item["formality"]["content"]["natureCreation"]:
+            creation_date = item["formality"]["content"]["natureCreation"]["dateCreation"]
+            if creation_date:
+                return creation_date.split("T")[0]
+            else:
+                return None
         else:
             return None
 
@@ -254,6 +327,36 @@ class FranceINPI(API):
        return (f"FR Register of Companies data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
 
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements (not generated as a result of a reporting exception)"""
+        ident = self.person_identifier(data)
+        #registration_status = self.registation_status(data)
+        return (f"FR Register of Companies data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        family_name = item["beneficiaire"]["descriptionPersonne"]["nom"]
+        first_names = itemdata["beneficiaire"]["descriptionPersonne"]["prenoms"]
+        names = " ".join(first_names + [family_name])
+        return names, family_name, first_names[0], None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return item["beneficiaire"]["descriptionPersonne"]["dateDeNaissance"]
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "adresseDomicile" in item["beneficiaire"] and "pays" in item["beneficiaire"]["adresseDomicile"]:
+            return item["beneficiaire"]["adresseDomicile"]["pays"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if "nom" in item and item["nom"]:
+                return None
+        return True
+
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""
         return item["attributes"]["relationship"]["startNode"]["id"]
@@ -268,7 +371,10 @@ class FranceINPI(API):
 
     def update_date(self, item: dict) -> str:
         """Get update date"""
-        return item["updatedAt"]
+        if "updatedAt" in item:
+            return item["updatedAt"]
+        else:
+            return date.today().strftime("%Y-%m-%d")
 
     def interest_details(self, item: dict) -> str:
         """Get interest details"""

@@ -30,6 +30,7 @@ class DenmarkCVR(API):
         """API http post"""
         return {"company_search": True,
                 "company_detail": None,
+                "company_persons": None,
                 "person_search": True,
                 "person_detail": None}
 
@@ -38,6 +39,7 @@ class DenmarkCVR(API):
         """API returns json"""
         return {"company_search": True,
                 "company_detail": None,
+                "company_persons": None,
                 "person_search": True,
                 "person_detail": None}
 
@@ -169,13 +171,16 @@ class DenmarkCVR(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 
     def extract_data(self, json_data: dict) -> dict:
         """Extract main data body from json data"""
-        return json_data["enheder"]
+        if "enheder" in json_data:
+            return json_data["enheder"]
+        else:
+            return []
 
     def company_prepocessing(self, data: dict) -> dict:
         self.pre_processed = {}
@@ -258,6 +263,10 @@ class DenmarkCVR(API):
     def scheme(self) -> str:
         """Get scheme"""
         return "DK-CVR"
+
+    @property
+    def search_url(self) -> str:
+        return 'https://datacvr.virk.dk/'
 
     @property
     def scheme_name(self) -> str:

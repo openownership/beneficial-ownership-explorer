@@ -30,7 +30,8 @@ class NigerianCAC(API):
         """API http method"""
         return {"company_search": True,
                 "company_detail": None,
-		        "person_search": True,
+                "company_persons": None,
+		"person_search": True,
                 "person_detail": True}
 
     @property
@@ -38,6 +39,7 @@ class NigerianCAC(API):
         """API returns json"""
         return {"company_search": True,
                 "company_detail": None,
+                "company_persons": None,
                 "person_search": True,
                 "person_detail": True}
 
@@ -141,7 +143,7 @@ class NigerianCAC(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         if not 'rcNumber' in data or not data['rcNumber']:
             return True
@@ -240,6 +242,11 @@ class NigerianCAC(API):
     def scheme(self) -> str:
         """Get scheme"""
         return 'NG-CAC'
+
+    @property
+    def search_url(self) -> str:
+        """URL for manual search"""
+        return 'https://search.cac.gov.ng/home'
 
     @property
     def scheme_name(self) -> str:

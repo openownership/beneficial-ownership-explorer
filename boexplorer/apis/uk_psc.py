@@ -23,16 +23,27 @@ class UKPSC(API):
         return "https://api.company-information.service.gov.uk/advanced-search/companies"
 
     @property
+    def http_timeout(self) -> int:
+        """API http timeout (seconds)"""
+        return 15
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": False,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": False,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def return_json(self) -> dict:
         """API returns json"""
         return {"company_search": True,
-                "company_detail": None}
+                "company_detail": None,
+                "company_persons": True,
+                "person_search": None,
+                "person_detail": None}
 
     @property
     def post_pagination(self) -> bool:
@@ -46,6 +57,20 @@ class UKPSC(API):
 
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
+        return None
+
+    def company_persons_url(self, company_data) -> str:
+        """API company detail url"""
+        company_number = company_data['company_number']
+        return f"https://api.company-information.service.gov.uk/company/{company_number}/persons-with-significant-control"
+
+    @property
+    def person_search_url(self) -> str:
+        """API person search url"""
+        return None
+
+    def person_detail_url(self, company_data) -> str:
+        """API person detail url"""
         return None
 
     def to_local_characters(self, text):
@@ -99,6 +124,28 @@ class UKPSC(API):
         """Querying person name extra parameters"""
         return None
 
+    def query_company_persons_params(self, company_data) -> dict:
+        """Querying company name parameter"""
+        return {}
+
+    def query_person_name_params(self, company_data) -> dict:
+        """Querying person name parameters"""
+        return None
+
+    @property
+    def query_person_name_extra(self) -> str:
+        """Querying person name extra parameters"""
+        return None
+
+    def query_person_detail_params(self, company_data) -> dict:
+        """Querying person detail parameters"""
+        return None
+
+    @property
+    def query_person_detail_extra(self) -> str:
+        """Querying person details extra parameters"""
+        return None
+
     def check_result(self, json_data: Union[dict, list], detail=False) -> bool:
         """Check successful return value"""
         if detail:
@@ -112,9 +159,15 @@ class UKPSC(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
-        return False
+        if not "company_number" in data:
+            if data['kind'] == 'individual-person-with-significant-control':
+                return False
+            else:
+                return True
+        else:
+            return False
 
     def extract_data(self, json_data: dict) -> dict:
         """Extract main data body from json data"""
@@ -155,6 +208,15 @@ class UKPSC(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
+    def extract_entity_persons_items(self, data: dict) -> dict:
+        """Extract entity person item data"""
+        print(data)
+        return data["items"]
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -162,6 +224,11 @@ class UKPSC(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data['company_number']
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        names = data["name"].replace(" ", "-")
+        return f"GB-COH-PER-{names}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -177,6 +244,11 @@ class UKPSC(API):
         return 'GB-COH'
 
     @property
+    def search_url(self) -> str:
+        """URL for manual search"""
+        return 'https://find-and-update.company-information.service.gov.uk/'
+
+    @property
     def scheme_name(self) -> str:
         """Get scheme name"""
         return 'Companies House'
@@ -187,7 +259,10 @@ class UKPSC(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"GB-COH-{item['company_number']}"
+        if 'company_number' in item:
+            return f"GB-COH-{item['company_number']}"
+        else:
+            return self.person_identifier(item)
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
@@ -196,6 +271,10 @@ class UKPSC(API):
     def business_address(self, item: dict) -> dict:
         """Get registered address"""
         return None
+
+    def person_address(self, item: dict) -> dict:
+        """Get person address"""
+        return item['address']
 
     def source_type(self, data: dict) -> str:
         """Get source type"""
@@ -244,12 +323,42 @@ class UKPSC(API):
         return data["company_status"]
 
     def entity_annotation(self, data: dict) -> Tuple[str, str]:
-       """Annotation of status for all entity statements (not generated as a result
-       of a reporting exception)"""
+       """Annotation of status for all entity statements"""
        ident = self.identifier(data)
        registration_status = self.registation_status(data)
        return (f"UK Companies House data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements"""
+        ident = self.person_identifier(data)
+        return (f"UK Companies House data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        family_name = item["name_elements"]["surname"]
+        #middle_name = item["name_elements"]["middle_name"]
+        first_name = item["name_elements"]["forename"]
+        return item["name"], family_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        month = item["date_of_birth"]["month"]
+        year = item["date_of_birth"]["year"]
+        return f"{year}-{month}"
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "country_of_residence" in item and item["country_of_residence"]:
+            return item["country_of_residence"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if "name" in item and item["name"]:
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""

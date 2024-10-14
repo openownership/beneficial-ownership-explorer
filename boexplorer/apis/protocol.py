@@ -14,6 +14,10 @@ class API(Protocol):
         """API base url"""
 
     @abstractproperty
+    def http_timeout(self) -> int:
+        """API http timeout (seconds)"""
+
+    @abstractproperty
     def http_post(self) -> dict:
         """API http post"""
 
@@ -28,6 +32,14 @@ class API(Protocol):
     @abstractmethod
     def company_detail_url(self, company_data: dict) -> str:
         """API company detail url"""
+
+    @abstractproperty
+    def person_search_url(self) -> str:
+        """API person search url"""
+
+    @abstractmethod
+    def person_detail_url(self, company_data) -> str:
+        """API person detail url"""
 
     @abstractmethod
     def to_local_characters(self, text):
@@ -74,11 +86,19 @@ class API(Protocol):
         """Querying person name extra parameters"""
 
     @abstractmethod
+    def query_person_detail_params(self, person_data) -> dict:
+        """Querying company detail parameters"""
+
+    @abstractproperty
+    def query_person_detail_extra(self) -> str:
+        """Querying company details extra parameters"""
+
+    @abstractmethod
     def check_result(self, json_data: Union[dict, list]) -> bool:
         """Check successful return value"""
 
     @abstractmethod
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
 
     @abstractmethod

@@ -31,6 +31,7 @@ class BulgarianCR(API):
         """API http post"""
         return {"company_search": False,
                 "company_detail": False,
+                "company_persons": None,
                 "person_search": False,
                 "person_detail": None}
 
@@ -39,6 +40,7 @@ class BulgarianCR(API):
         """API returns json"""
         return {"company_search": True,
                 "company_detail": True,
+                "company_persons": None,
                 "person_search": True,
                 "person_detail": None}
 
@@ -55,6 +57,10 @@ class BulgarianCR(API):
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
         return f"{self.base_url}/{company_data['ident']}"
+
+    def company_persons_url(self, company_data) -> str:
+        """API company detail url"""
+        return "https://portal.registryagency.bg/CR/api/Deeds/SubjectInFields"
 
     @property
     def person_search_url(self) -> str:
@@ -143,7 +149,7 @@ class BulgarianCR(API):
                     print(f"Error: {json_data['code']} {json_data['message']}")
                 return False
 
-    def filter_result(self, data: dict, detail=False) -> bool:
+    def filter_result(self, data: dict, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 
@@ -218,6 +224,10 @@ class BulgarianCR(API):
     def scheme(self) -> str:
         """Get scheme"""
         return 'BG-EIK'
+
+    @property
+    def search_url(self) -> str:
+        return 'https://portal.registryagency.bg/CR/en/Reports/VerificationPersonOrg'
 
     @property
     def scheme_name(self) -> str:
