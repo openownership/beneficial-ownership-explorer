@@ -21,3 +21,9 @@ def build_company_id_query(api, company):
     params = api.query_company_detail_params(company)
     if api.query_company_detail_extra: params = params | api.query_company_detail_extra
     return api.company_detail_url(company), params
+
+def build_company_persons_query(api, company):
+    url = api.company_persons_url(company)
+    params = api.query_company_persons_params(company)
+    #if api.query_company_detail_extra: params = params | api.query_company_detail_extra
+    return url, params

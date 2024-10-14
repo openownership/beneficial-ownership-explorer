@@ -14,7 +14,7 @@ def merge_records(record_id, records):
     return [name, jurisdiction, record_id, not_none(founding_date), list_all(records)]
 
 def source_summary(source_id, data):
-    return [data['name'], data['country'], data['entity_count'], data['person_count']]
+    return [data['country'], data['name'], data['entity_count'], data['person_count'], data['url']]
 
 def construct_company_table(bods_data):
     table = []
@@ -23,9 +23,15 @@ def construct_company_table(bods_data):
         table.append(row)
     return table
 
+def sort_table(table, column):
+    """Sort table in reverse order on specified column"""
+    return sorted(table, key=lambda row: row[column], reverse=True)
+
 def construct_summary_table(bods_data):
+    """Construct summary table"""
     table = []
     for source_id in bods_data['sources']:
         row = source_summary(source_id, bods_data['sources'][source_id])
         table.append(row)
+    table = sort_table(table, 2)
     return table

@@ -13,7 +13,9 @@ dependencies = ["reflex",
                 "geopy",
                 "plotly",
                 "parsel",
-                "random-user-agent"]
+                "random-user-agent",
+                "thefuzz",
+                "pytest-asyncio"]
 readme="README.md"
 license = {text= "AGPLv3"}
 authors = [

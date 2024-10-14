@@ -6,6 +6,7 @@ import reflex as rx
 from boexplorer import style
 from boexplorer.layout.navbar import navbar
 from boexplorer.state import ExplorerState
+from boexplorer.components.table import summary_table
 
 def details() -> rx.Component:
     # Details Page
@@ -45,98 +46,20 @@ def results() -> rx.Component:
         ),
     )
 
-def index() -> rx.Component:
-    # Landing Page (Index)
-    return rx.container(
-        rx.color_mode.button(position="top-right"),
-        rx.vstack(
-            rx.heading("BO Explorer", font_size="9"),
-            rx.form(
-                rx.vstack(
-                    rx.input(
-                        id="search_text",
-                        placeholder="Enter a ownership search..",
-                        size="3",
-                    ),
-                    rx.radio(
-                        ["Company search", "Person search"],
-                        name="search_type",
-                        required=True,
-                        direction="row",
-                        spacing="9"
-                    ),
-                    rx.button(
-                        "Search",
-                        type="submit",
-                        size="3",
-                    ),
-                    align="stretch",
-                    spacing="2",
-                ),
-                width="100%",
-                on_submit=ExplorerState.get_search_result,
-            ),
-            rx.divider(),
-            width="25em",
-            bg="white",
-            padding="2em",
-            align="center",
-        ),
-    )
 
 def company_results() -> rx.Component:
     """Results page"""
     return rx.fragment(
                rx.vstack(
                    navbar(title="Beneficial Ownership Explorer"),
-                   rx.container(
+                   rx.center(
                        rx.color_mode.button(position="bottom-left"),
-        rx.vstack(
-            rx.cond(
-                ExplorerState.searching,
-                rx.chakra.circular_progress(is_indeterminate=True),
-                rx.cond(
-                    ExplorerState.display_table,
-                    #rx.data_table(
-                    #    data=State.data_table,
-                    #    columns=State.columns,
-                    #    pagination=True,
-                    #    search=True,
-                    #    sort=True,
-                    #)
-                    rx.data_editor(
-                        columns=ExplorerState.columns,
-                        data=ExplorerState.data_table,
-                        on_cell_clicked=ExplorerState.get_detail,
-                    )
-                ),
-            ),
-            width="100em",
-            bg="white",
-            padding="2em",
-            align="center",
-        ),
-                   ),
-               ),
-           )
-
-def company_results() -> rx.Component:
-    """Results page"""
-    return rx.fragment(
-               rx.vstack(
-                   navbar(title="Beneficial Ownership Explorer"),
-                   rx.container(
-                       rx.color_mode.button(position="bottom-left"),
-                rx.cond(
-                    ExplorerState.display_table,
-                    rx.data_table(
-                        data=ExplorerState.data_table,
-                        columns=ExplorerState.summary_columns,
-                        pagination=True,
-                        search=True,
-                        sort=True,
-                    )
-                ),
+                       rx.cond(
+                           ExplorerState.display_table,
+                           summary_table(ExplorerState.data_table)
+                       ),
+                       width="100%",
+                       margin="1em",
                    ),
                ),
            )
@@ -146,18 +69,14 @@ def persons_results() -> rx.Component:
     return rx.fragment(
                rx.vstack(
                    navbar(title="Beneficial Ownership Explorer"),
-                   rx.container(
+                   rx.center(
                        rx.color_mode.button(position="bottom-left"),
-                rx.cond(
-                    ExplorerState.display_table,
-                    rx.data_table(
-                        data=ExplorerState.data_table,
-                        columns=ExplorerState.summary_columns,
-                        pagination=True,
-                        search=True,
-                        sort=True,
-                    )
-                ),
+                       rx.cond(
+                           ExplorerState.display_table,
+                           summary_table(ExplorerState.data_table)
+                       ),
+                       width="100%",
+                       margin="1em",
                    ),
                ),
            )
@@ -235,7 +154,8 @@ def index() -> rx.Component:
                       rx.cond(
                            ExplorerState.searching,
                            rx.vstack(
-                               rx.spinner(size="3"),
+                               rx.center(rx.spinner(size="3"),
+                                         width="100%"),
                                rx.text("Searching..."),
                            ),
                            search_form(),
@@ -247,7 +167,7 @@ def index() -> rx.Component:
            )
 
 app = rx.App()
-app.add_page(index)
+app.add_page(index, on_load=ExplorerState.initialise_search_page)
 app.add_page(company_results, route="/companies")
 app.add_page(persons_results, route="/persons")
 app.add_page(details)

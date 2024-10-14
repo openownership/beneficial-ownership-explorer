@@ -9,8 +9,8 @@ from boexplorer.search import perform_company_search, perform_person_search
 class ExplorerState(rx.State):
     """The app state."""
     bods_data: dict = {}
-    data_table: List = []
-    summary_columns: List[str] = ["Source", "Country", "Companies", "Individuals"]
+    data_table: List[List[str]] = []
+    summary_columns: List[str] = ["Source", "Country", "Companies", "Individuals", "Links"]
     columns: list[Any] = [
         {
             "title": "Name",
@@ -44,23 +44,21 @@ class ExplorerState(rx.State):
         async with self:
             self.searching = True
         if form_data["search_type"] == 'Company search':
-            bods_data = perform_company_search(form_data["search_text"])
+            bods_data = await perform_company_search(form_data["search_text"])
             #self.data_table = construct_company_table(self.bods_data)
             data_table = construct_summary_table(bods_data)
             print(data_table)
             async with self:
                 self.bods_data = bods_data
                 self.data_table = data_table
-                self.searching = False
                 self.display_table = True
             return rx.redirect("/companies")
         else:
-            bods_data = perform_person_search(form_data["search_text"])
+            bods_data = await perform_person_search(form_data["search_text"])
             data_table = construct_summary_table(bods_data)
             async with self:
                 self.bods_data = bods_data
                 self.data_table = data_table
-                self.searching = False
                 self.display_table = True
             return rx.redirect("/persons")
 
@@ -69,3 +67,6 @@ class ExplorerState(rx.State):
         self.detail_identifier = self.data_table[row][2]
         self.detail_statement = self.bods_data[self.detail_identifier][0]
         return rx.redirect("/details")
+
+    def initialise_search_page(self):
+        self.searching = False

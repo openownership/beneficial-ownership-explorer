@@ -22,7 +22,7 @@ search_companies_apis = [GLEIF(scheme_data=scheme_data),
                LatviaUR(),
                PolandKRS(),
                EstoniaRIK(),
-               #FranceINPI(),
+               FranceINPI(),
                CzechCR()]
 
 search_persons_apis = [BulgarianCR(),
