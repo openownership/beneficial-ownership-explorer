@@ -56,7 +56,7 @@ def company_results() -> rx.Component:
                        rx.color_mode.button(position="bottom-left"),
                        rx.cond(
                            ExplorerState.display_table,
-                           summary_table(ExplorerState.data_table)
+                           summary_table(ExplorerState.summary_columns, ExplorerState.data_table)
                        ),
                        width="100%",
                        margin="1em",
@@ -73,7 +73,7 @@ def persons_results() -> rx.Component:
                        rx.color_mode.button(position="bottom-left"),
                        rx.cond(
                            ExplorerState.display_table,
-                           summary_table(ExplorerState.data_table)
+                           summary_table(ExplorerState.summary_columns, ExplorerState.data_table)
                        ),
                        width="100%",
                        margin="1em",

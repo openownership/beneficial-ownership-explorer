@@ -1,14 +1,20 @@
 from typing import List
 import reflex as rx
 
-def summary_table_header():
+def table_header_cell(title: str):
+    return rx.table.column_header_cell(title)
+
+def summary_table_header(columns: List[str]):
     return rx.table.header(
             rx.table.row(
-                rx.table.column_header_cell("Country"),
-                rx.table.column_header_cell("Source"),
-                rx.table.column_header_cell("Companies"),
-                rx.table.column_header_cell("Individuals"),
-                rx.table.column_header_cell("Links")
+                rx.foreach(
+                    columns, table_header_cell
+                )
+                #rx.table.column_header_cell("Country"),
+                #rx.table.column_header_cell("Source"),
+                #rx.table.column_header_cell("Companies"),
+                #rx.table.column_header_cell("Individuals"),
+                #rx.table.column_header_cell("Links")
             ),
         )
 
@@ -22,9 +28,9 @@ def summary_table_row(row: List[str]):
         rx.table.cell(rx.link(f"Search {row[1]}", href=row[4])),
     )
 
-def summary_table(rows: List[List[str]]):
+def summary_table(columns: List[str], rows: List[List[str]]):
     return rx.table.root(
-        summary_table_header(),
+        summary_table_header(columns),
         rx.table.body(
             rx.foreach(
                 rows, summary_table_row

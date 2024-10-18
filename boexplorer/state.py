@@ -3,7 +3,7 @@ from typing import List, Any
 import reflex as rx
 
 #from boexplorer.display.details import entity_details
-from boexplorer.display.table import construct_company_table, construct_summary_table
+from boexplorer.display.table import construct_company_table, construct_summary_table, summary_columns
 from boexplorer.search import perform_company_search, perform_person_search
 
 class ExplorerState(rx.State):
@@ -46,18 +46,22 @@ class ExplorerState(rx.State):
         if form_data["search_type"] == 'Company search':
             bods_data = await perform_company_search(form_data["search_text"])
             #self.data_table = construct_company_table(self.bods_data)
-            data_table = construct_summary_table(bods_data)
+            columns = summary_columns(table_type="company")
+            data_table = construct_summary_table(bods_data, table_type="company")
             print(data_table)
             async with self:
                 self.bods_data = bods_data
+                self.summary_columns = columns
                 self.data_table = data_table
                 self.display_table = True
             return rx.redirect("/companies")
         else:
             bods_data = await perform_person_search(form_data["search_text"])
-            data_table = construct_summary_table(bods_data)
+            columns = summary_columns(table_type="person")
+            data_table = construct_summary_table(bods_data, table_type="person")
             async with self:
                 self.bods_data = bods_data
+                self.summary_columns = columns
                 self.data_table = data_table
                 self.display_table = True
             return rx.redirect("/persons")
