@@ -6,3 +6,7 @@ pass = ""
 [sources.france_inpi.credentials]
 user = ""
 pass = ""
+
+[sources.estonia_rik.credentials]
+user = ""
+pass = ""
