@@ -146,7 +146,9 @@ class LatviaUR(API):
 
     def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
+        #print("Filter:", search, data['name'] if 'name' in data else None)
         if search and data['name']:
+            #print(data['name'], fuzz.ratio(search, data['name']))
             if fuzz.ratio(search, data['name']) > 50:
                 return False
             else:

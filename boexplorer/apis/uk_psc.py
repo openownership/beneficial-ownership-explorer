@@ -307,7 +307,7 @@ class UKPSC(API):
 
     def address_postcode(self, address: dict) -> Optional[str]:
         """Get address postcode"""
-        return address["postal_code"]
+        return address["postal_code"] if "postal_code" in address else None
 
     def creation_date(self, item: dict) -> Optional[str]:
         """Get creation date"""
