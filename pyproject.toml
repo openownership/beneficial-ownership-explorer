@@ -4,6 +4,7 @@ description = "Web application for dynamic querying of APIs to explorer benefici
 version = "0.1"
 requires-python = '>=3.10'
 dependencies = ["reflex",
+                "tomli",
                 "httpx",
                 "pycountry",
                 "pytz",
