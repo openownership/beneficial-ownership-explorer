@@ -117,10 +117,10 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
          api.return_json["company_persons"])) and company_data:
         for entity in company_data:
             if (api.http_post["company_persons"] is not None and api.company_persons_url(entity) and
-                not api.filter_result(entity, search_type="company_persons")):
-                print(api.identifier(entity))
+                not api.filter_result(entity, search_type="company_persons", search=text)):
+                #print(api.identifier(entity), api.filter_result(entity, search_type="company_persons"))
                 url, params = build_company_persons_query(api, entity)
-                print(url, params)
+                #print(url, params)
                 json_data = await download_json(url, params, {},
                                   verify=False,
                                   post=api.http_post["company_persons"],

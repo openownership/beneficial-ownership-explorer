@@ -51,3 +51,16 @@ async def test_latvia_ur_2():
     process_data(company_data, persons_data, api, bods_data, search=text)
 
     print(json.dumps(bods_data, indent=2))
+    assert False
+
+@pytest.mark.asyncio
+async def test_latvia_ur_3():
+    #scheme_data = load_data()
+    api = LatviaUR()
+    text = "LVMH"
+    bods_data = {'entities': {}, 'persons': {}, 'sources': {}}
+    _, company_data, persons_data = await fetch_all_data(api, text, bods_data)
+    process_data(company_data, persons_data, api, bods_data, search=text)
+
+    print(json.dumps(bods_data, indent=2))
+    assert False
