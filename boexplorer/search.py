@@ -46,8 +46,8 @@ def process_data(company_data, person_data, api, bods_data, search=None):
     #    json_data = download_json(url, {})
     #    if api.extract_type(json_data) == "relationship":
     for item in person_data:
-        print(item)
-        if not api.filter_result(item):
+        print("Item:", item)
+        if not api.filter_result(item, search_type="company"):
             print("Transforming ...")
             persons.append(transform_person(item, api))
     entity_count = match_records(entities, bods_data['entities'])
@@ -60,7 +60,7 @@ def process_person_data(source_data, api, bods_data, search=None):
     links = []
     for item in source_data:
         print(item)
-        if not api.filter_result(item):
+        if not api.filter_result(item, search_type="person"):
             print("Transforming ...")
             persons.append(transform_person(item, api))
     print(json.dumps(persons, indent=2))
@@ -116,7 +116,8 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
         (api.http_post["company_persons"] is None and
          api.return_json["company_persons"])) and company_data:
         for entity in company_data:
-            if api.http_post["company_persons"] is not None:
+            if (api.http_post["company_persons"] is not None and api.company_persons_url(entity) and
+                not api.filter_result(entity, search_type="company_persons")):
                 print(api.identifier(entity))
                 url, params = build_company_persons_query(api, entity)
                 print(url, params)
@@ -131,6 +132,7 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
                                                              else None)
             else:
                 json_data = company_data
+            print("Return type", type(json_data))
             for person in api.extract_entity_persons_items(json_data):
                 persons_data.append(person)
     return api, company_data, persons_data
