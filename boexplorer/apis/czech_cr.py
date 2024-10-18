@@ -32,7 +32,7 @@ class CzechCR(API):
         """API http post"""
         return {"company_search": False,
                 "company_detail": None,
-                "company_persons": None,
+                "company_persons": False,
                 "person_search": None,
                 "person_detail": None}
 
@@ -41,7 +41,7 @@ class CzechCR(API):
         """API returns json"""
         return {"company_search": False,
                 "company_detail": None,
-                "company_persons": None,
+                "company_persons": False,
                 "person_search": None,
                 "person_detail": None}
 
@@ -58,6 +58,10 @@ class CzechCR(API):
     def company_detail_url(self, company_data) -> str:
         """API company detail url"""
         return None
+
+    def company_persons_url(self, company_data) -> str:
+        """API company detail url"""
+        return "https://esm.justice.cz/ias/issm/rejstrik-$sm"
 
     @property
     def person_search_url(self) -> str:
@@ -110,6 +114,12 @@ class CzechCR(API):
         """Querying company details extra parameters"""
         return None
 
+    def query_company_persons_params(self, company_data) -> dict:
+        """Querying company name parameter"""
+        return {'ico': company_data['IČO:'], 'polozek': 50,
+                'typHledani': 'STARTS_WITH', 'jenPlatne': 'PLATNE',
+                'typHledaniSpolku': 'ALL'}
+
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
         return None
@@ -141,8 +151,11 @@ class CzechCR(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, search=None, detail=False) -> bool:
+    def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
+        if search_type == "company":
+            if not 'Jméno:' in data:
+                return True
         return False
 
     def extract_data(self, json_data: dict) -> dict:
@@ -166,6 +179,15 @@ class CzechCR(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
+    def extract_entity_persons_items(self, data: dict) -> dict:
+        """Extract entity person item data"""
+        #print("HTML:", data)
+        return extract_items(data)
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -173,6 +195,11 @@ class CzechCR(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data['IČO:']
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        names = data['Jméno:'].title().replace(" ", "-")
+        return f"CZ-CR-PER-{names}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -202,13 +229,20 @@ class CzechCR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"CZ-CR-{item['IČO:']}"
+        if 'Jméno:' in item:
+            return self.person_identifier(item)
+        else:
+            return f"CZ-CR-{item['IČO:']}"
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
         return item['Sídlo:']
 
     def business_address(self, item: dict) -> dict:
+        """Get registered address"""
+        return None
+
+    def person_address(self, item: dict) -> dict:
         """Get registered address"""
         return None
 
@@ -254,8 +288,34 @@ class CzechCR(API):
        of a reporting exception)"""
        ident = self.identifier(data)
        registration_status = self.registation_status(data)
-       return (f"UK Companies House data for this entity: {ident}; Registration Status: {registration_status}",
+       return (f"Czech Commercial Register data for this entity: {ident}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements (not generated as a result of a reporting exception)"""
+        ident = self.person_identifier(data)
+        return (f"Czech Commercial Register data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        names = item["Jméno:"].title()
+        family_name = names.split()[-1]
+        first_name = names.split()[0]
+        return names, family_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return None
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if ("Jméno:" in item and item["Jméno:"]):
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""

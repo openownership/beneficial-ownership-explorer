@@ -149,7 +149,7 @@ class BulgarianCR(API):
                     print(f"Error: {json_data['code']} {json_data['message']}")
                 return False
 
-    def filter_result(self, data: dict, search=None, detail=False) -> bool:
+    def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 
@@ -232,7 +232,7 @@ class BulgarianCR(API):
     @property
     def scheme_name(self) -> str:
         """Get scheme name"""
-        return 'Commercial Register (Bulgaria)'
+        return 'Commercial Register'
 
     def additional_identifiers(self, item: dict) -> list:
         """Get list of additional identifiers"""

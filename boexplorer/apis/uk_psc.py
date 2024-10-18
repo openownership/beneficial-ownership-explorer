@@ -159,7 +159,7 @@ class UKPSC(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, search=None, detail=False) -> bool:
+    def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         if not "company_number" in data:
             if data['kind'] == 'individual-person-with-significant-control':

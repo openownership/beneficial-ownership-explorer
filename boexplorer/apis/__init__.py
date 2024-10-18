@@ -28,4 +28,5 @@ search_companies_apis = [GLEIF(scheme_data=scheme_data),
 search_persons_apis = [BulgarianCR(),
 		       NigerianCAC(),
                        DenmarkCVR(),
+                       SlovakiaORSR(),
                ]

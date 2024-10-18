@@ -165,7 +165,7 @@ class PolandKRS(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, search=None, detail=False) -> bool:
+    def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         return False
 

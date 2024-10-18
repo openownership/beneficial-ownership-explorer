@@ -28,7 +28,7 @@ class LatviaUR(API):
         """API http post"""
         return {"company_search": False,
                 "company_detail": None,
-                "company_persons": None,
+                "company_persons": False,
                 "person_search": None,
                 "person_detail": None}
 
@@ -37,7 +37,7 @@ class LatviaUR(API):
         """API returns json"""
         return {"company_search": True,
                 "company_detail": None,
-                "company_persons": None,
+                "company_persons": True,
                 "person_search": None,
                 "person_detail": None}
 
@@ -51,9 +51,17 @@ class LatviaUR(API):
         """API company search url"""
         return f"{self.base_url}/legalentity/search"
 
-    def company_detail_url(self, company_data: dict) -> str:
+    def company_detail_url(self, company_data) -> str:
         """API company detail url"""
         return None
+
+    def company_persons_url(self, company_data: dict) -> str:
+        """API company persons url"""
+        if "code" in company_data:
+            code = company_data["code"]
+            return f"{self.base_url}/legalentity/api/{code}/persons/beneficiaries"
+        else:
+            return None
 
     @property
     def person_search_url(self) -> str:
@@ -105,6 +113,10 @@ class LatviaUR(API):
         """Querying company details extra parameters"""
         return None
 
+    def query_company_persons_params(self, company_data) -> dict:
+        """Querying company name parameter"""
+        return {"lang": "LV", "fillForeignerData": True}
+
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
         return None
@@ -132,7 +144,7 @@ class LatviaUR(API):
             #    print(f"Error: {json_data['code']} {json_data['message']}")
             return False
 
-    def filter_result(self, data: dict, search=None, detail=False) -> bool:
+    def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
         if search and data['name']:
             if fuzz.ratio(search, data['name']) > 50:
@@ -160,6 +172,22 @@ class LatviaUR(API):
         """Extract entity item data"""
         return data
 
+    def extract_person_item(self, data: dict) -> dict:
+        """Extract person item data"""
+        return data
+
+    def extract_entity_persons_items(self, data: dict) -> dict:
+        """Extract entity person item data"""
+        if "records" in data:
+            return data["records"]
+        else:
+            return []
+        #items = []
+        #if "kuvPersonsInfo" in data and data["kuvPersonsInfo"]:
+        #    for item in data["kuvPersonsInfo"]:
+        #        items.append(item)
+        #return items
+
     def extract_relationship_item(self, data: dict) -> dict:
         """Extract relationship item data"""
         return data['attributes']['relationship']
@@ -167,6 +195,15 @@ class LatviaUR(API):
     def identifier(self, data: dict) -> str:
         """Get entity identifier"""
         return data["regnumber"]
+
+    def person_identifier(self, data: dict) -> str:
+        """Get person identifier"""
+        if "personCode" in data:
+            ident = data["personCode"]
+            return f"PL-ORSR-PER-{ident}"
+        else:
+            names = f'{data["firstname"]}-{data["lastname"]}'
+            return f"PL-ORSR-PER-{names}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -197,7 +234,10 @@ class LatviaUR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        return f"LV-RE-{item['regnumber']}"
+        if 'regnumber' in item:
+            return f"LV-RE-{item['regnumber']}"
+        else:
+            return self.person_identifier(item)
 
     def registered_address(self, item: dict) -> dict:
         """Get registered address"""
@@ -205,6 +245,10 @@ class LatviaUR(API):
 
     def business_address(self, item: dict) -> dict:
         """Get registered address"""
+        return None
+
+    def person_address(self, item: dict) -> dict:
+        """Get person address"""
         return None
 
     def source_type(self, data: dict) -> str:
@@ -249,8 +293,37 @@ class LatviaUR(API):
        of a reporting exception)"""
        lei = self.identifier(data)
        registration_status = self.registation_status(data)
-       return (f"GLEIF data for this entity - LEI: {lei}; Registration Status: {registration_status}",
+       return (f"Latvian Commerce Register data for this entity: {lei}; Registration Status: {registration_status}",
                "/")
+
+    def person_annotation(self, data: dict) -> Tuple[str, str]:
+        """Annotation of status for all person statements"""
+        ident = self.person_identifier(data)
+        return (f"Latvian Commerce Register data for this person: {ident}", "/")
+
+    def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
+        """Extract person name components"""
+        family_name = item["lastname"]
+        first_name = item["firstname"]
+        names = f'{item["firstname"]} {item["lastname"]}'
+        return names, family_name, first_name, None
+
+    def person_birth_date(self, item: dict):
+        """Extract person birth date"""
+        return item["birthDate"].split("T")[0]
+
+    def person_tax_residency(self, item: dict):
+        """Extract person tax residency"""
+        if "country" in item and item["country"]["value"]:
+            return item["country"]["value"]
+        else:
+            return None
+
+    def unspecified_person(self, item: dict):
+        """Person unspecified"""
+        if ("lastname" in item and item["lastname"]):
+                return None
+        return True
 
     def subject_id(self, item: dict) -> str:
         """Get relationship subject identifier"""

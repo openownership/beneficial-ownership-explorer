@@ -31,7 +31,7 @@ class SlovakiaORSR(API):
         return {"company_search": False,
                 "company_detail": None,
                 "company_persons": False,
-                "person_search": None,
+                "person_search": False,
                 "person_detail": None}
     @property
     def return_json(self) -> dict:
@@ -39,7 +39,7 @@ class SlovakiaORSR(API):
         return {"company_search": True,
                 "company_detail": None,
                 "company_persons": True,
-                "person_search": None,
+                "person_search": True,
                 "person_detail": None}
     @property
     def post_pagination(self) -> bool:
@@ -63,7 +63,7 @@ class SlovakiaORSR(API):
     @property
     def person_search_url(self) -> str:
         """API person search url"""
-        return None
+        return f"{self.base_url}/search"
 
     def person_detail_url(self, company_data) -> str:
         """API person detail url"""
@@ -114,9 +114,9 @@ class SlovakiaORSR(API):
         """Querying company name parameter"""
         return {"showHistoricalData": True}
 
-    def query_person_name_params(self, company_data) -> dict:
+    def query_person_name_params(self, text) -> dict:
         """Querying person name parameters"""
-        return None
+        return {"fullName": text}
 
     @property
     def query_person_name_extra(self) -> str:
@@ -145,9 +145,24 @@ class SlovakiaORSR(API):
             else:
                 return False
 
-    def filter_result(self, data: dict, search=None, detail=False) -> bool:
+    def _is_person(self, data: dict):
+       if 'personName' in data:
+           return True
+       else:
+            if data["sourceRegister"]["value"]["code"] == "2":
+                return True
+            else:
+                return False
+
+    def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
-        return False
+        if search_type == "person":
+            if self._is_person(data):
+                return False
+            else:
+                return True
+        else:
+            return False
 
     def extract_data(self, json_data: dict) -> dict:
         """Extract main data body from json data"""
@@ -217,8 +232,16 @@ class SlovakiaORSR(API):
 
     def person_identifier(self, data: dict) -> str:
         """Get person identifier"""
-        names = data["personName"]["formatedName"].replace(" ", "-")
-        return f"PL-ORSR-PER-{names}"
+        if "personName" in data:
+            names = data["personName"]["formatedName"].replace(" ", "-")
+            return f"SK-ORSR-PER-{names}"
+        else:
+            #if "identifiers" in data and len(data["identifiers"]) > 0:
+            #    ident = data["identifiers"][0]["value"]
+            #    return f"PL-ORSR-PER-{ident}"
+            #else:
+            names = data["fullNames"][-1]["value"].replace(" ", "-")
+            return f"SK-ORSR-PER-{names}"
 
     def entity_name(self, item: dict) -> str:
         """Get entity name"""
@@ -250,7 +273,7 @@ class SlovakiaORSR(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        if "establishment" in item:
+        if not self._is_person(item):
             identifier = self.identifier(item)
             return f"SK-ORSR-{identifier}"
         else:
@@ -269,7 +292,10 @@ class SlovakiaORSR(API):
 
     def person_address(self, item: dict) -> dict:
         """Get person address"""
-        return None
+        if "addresses" in item and len(item["addresses"]) > 0:
+            return item["addresses"]
+        else:
+            return None
 
     def source_type(self, data: dict) -> str:
         """Get source type"""
@@ -283,6 +309,8 @@ class SlovakiaORSR(API):
     def address_string(self, address: dict) -> str:
         """Get address string"""
         if address:
+            if isinstance(address, list):
+                address = address[-1]
             print(address)
             address_data = []
             if "buildingNumber" in address and address["buildingNumber"]:
@@ -300,10 +328,14 @@ class SlovakiaORSR(API):
 
     def address_country(self, address: dict) -> str:
         """Get address country"""
+        if isinstance(address, list):
+            address = address[-1]
         return address['country']['value'] if "country" in address else None
 
     def address_postcode(self, address: dict) -> Optional[str]:
         """Get address postcode"""
+        if isinstance(address, list):
+            address = address[-1]
         return address["postalCodes"] if ("postalCodes" in address and
                                           len(address["postalCodes"]) > 0) else None
 
@@ -335,11 +367,17 @@ class SlovakiaORSR(API):
 
     def person_name_components(self, item: dict) -> Tuple[str, str, str, str]:
         """Extract person name components"""
-        family_name = item["personName"]["familyNames"]
-        middle_name = None
-        first_name = item["personName"]["givenNames"]
-        names = item["personName"]["formatedName"]
-        return names, family_name, first_name, None
+        if "personName" in item:
+            family_name = item["personName"]["familyNames"]
+            middle_name = None
+            first_name = item["personName"]["givenNames"]
+            names = item["personName"]["formatedName"]
+            return names, family_name, first_name, None
+        else:
+            names = item["fullNames"][-1]["value"]
+            family_name = names.split()[-1]
+            first_name = names.split()[0]
+            return names, family_name, first_name, None
 
     def person_birth_date(self, item: dict):
         """Extract person birth date"""
@@ -354,7 +392,7 @@ class SlovakiaORSR(API):
 
     def unspecified_person(self, item: dict):
         """Person unspecified"""
-        if "personName" in item and item["personName"]:
+        if ("personName" in item and item["personName"]) or ("fullNames" in item and len(item["fullNames"]) > 0):
                 return None
         return True
 
