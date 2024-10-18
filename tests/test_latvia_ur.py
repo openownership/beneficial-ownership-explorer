@@ -40,3 +40,14 @@ async def test_latvia_ur():
     assert bods_data[10]["recordId"] == "DE-CR-HRA 5603"
     assert bods_data[11]["statementId"] == "1aebd904-ab4c-e7a7-676a-1fcf11abdfb2"
     assert bods_data[11]["recordId"] == "BE-BCE_KBO-0403075580"
+
+@pytest.mark.asyncio
+async def test_latvia_ur_2():
+    #scheme_data = load_data()
+    api = LatviaUR()
+    text = "Aurubis"
+    bods_data = {'entities': {}, 'persons': {}, 'sources': {}}
+    _, company_data, persons_data = await fetch_all_data(api, text, bods_data)
+    process_data(company_data, persons_data, api, bods_data, search=text)
+
+    print(json.dumps(bods_data, indent=2))
