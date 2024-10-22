@@ -25,6 +25,10 @@ class API(Protocol):
     def post_pagination(self) -> bool:
         """API post pagination"""
 
+    @property
+    def session_cookie(self):
+        """Get session cookeie"""
+
     @abstractproperty
     def company_search_url(self) -> str:
         """API company search url"""

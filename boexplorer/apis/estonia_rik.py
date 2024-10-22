@@ -52,6 +52,10 @@ class EstoniaRIK(API):
         return False
 
     @property
+    def session_cookie(self):
+        return None, None
+
+    @property
     def company_search_url(self) -> str:
         """API company search url"""
         return f"{self.base_url}"

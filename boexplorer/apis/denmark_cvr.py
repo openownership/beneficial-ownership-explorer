@@ -6,6 +6,7 @@ from parsel import Selector
 from boexplorer.apis.protocol import API
 from boexplorer.utils.dates import current_date
 from boexplorer.download.authentication import authenticator
+from boexplorer.download.stealth import  session_cookie
 
 class DenmarkCVR(API):
     """Handle accessing Danish CVR api"""
@@ -47,6 +48,11 @@ class DenmarkCVR(API):
     def post_pagination(self) -> bool:
         """API post pagination"""
         return True
+
+    @property
+    def session_cookie(self):
+        user_agent, cookie = session_cookie("https://datacvr.virk.dk", 'S9SESSIONID')
+        return user_agent, cookie
 
     @property
     def company_search_url(self) -> str:

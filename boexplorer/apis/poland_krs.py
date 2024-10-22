@@ -49,6 +49,10 @@ class PolandKRS(API):
         return False
 
     @property
+    def session_cookie(self):
+        return None, None
+
+    @property
     def company_search_url(self) -> str:
         """API company search url"""
         return "https://prs-openapi2-prs-prod.apps.ocp.prod.ms.gov.pl/api/wyszukiwarka/krs"

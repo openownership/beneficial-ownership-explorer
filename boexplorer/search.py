@@ -39,14 +39,16 @@ def process_data(company_data, person_data, api, bods_data, search=None):
     persons = []
     links = []
     for item in company_data:
+        #print("Company item:", item)
         if not api.filter_result(item, search=search):
+            print("Transforming ...")
             entities.append(transform_entity(item, api))
         #links.extend(api.extract_links(item))
     #for link in links:
     #    json_data = download_json(url, {})
     #    if api.extract_type(json_data) == "relationship":
     for item in person_data:
-        print("Item:", item)
+        #print("Person item:", item)
         if not api.filter_result(item, search_type="company"):
             print("Transforming ...")
             persons.append(transform_person(item, api))
@@ -59,7 +61,7 @@ def process_person_data(source_data, api, bods_data, search=None):
     persons = []
     links = []
     for item in source_data:
-        print(item)
+        print("Person item:", item, api.filter_result(item, search_type="person"))
         if not api.filter_result(item, search_type="person"):
             print("Transforming ...")
             persons.append(transform_person(item, api))
@@ -72,6 +74,10 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
     page_size = 25
     raw_data = []
     count = 0
+    user_agent, cookie = api.session_cookie
+    header = {}
+    if user_agent: header["User-Agent"] = user_agent
+    if cookie: header["Cookie"] = cookie
     while True:
         url, query_params, other_params = build_company_name_query(api,
                                                                    text,
@@ -82,6 +88,7 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
                                   post_pagination=api.post_pagination,
                                   post_json=isinstance(query_params, dict),
                                   json_data=api.return_json["company_search"],
+                                  header=header,
                                   auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None)
@@ -103,6 +110,7 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
             url, params = build_company_id_query(api, entity)
             json_data = await download_json(url, params, {},
                                       post=api.http_post["company_detail"],
+                                      header=header,
                                       auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None)
@@ -127,6 +135,7 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
                                   post_pagination=api.post_pagination,
                                   post_json=isinstance(params, dict),
                                   json_data=api.return_json["company_persons"],
+                                  header=header,
                                   auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None)
@@ -142,6 +151,10 @@ async def fetch_person_data(api, text, bods_data, max_results=100):
     page_size = 25
     raw_data = []
     count = 0
+    user_agent, cookie = api.session_cookie
+    header = {}
+    if user_agent: header["User-Agent"] = user_agent
+    if cookie: header["Cookie"] = cookie
     while True:
         url, query_params, other_params = build_person_name_query(api,
                                                                   text,
@@ -152,6 +165,7 @@ async def fetch_person_data(api, text, bods_data, max_results=100):
                                   post_pagination=api.post_pagination,
                                   post_json=isinstance(query_params, dict),
                                   json_data=api.return_json["person_search"],
+                                  header=header,
                                   auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None,
@@ -175,6 +189,7 @@ async def fetch_person_data(api, text, bods_data, max_results=100):
             url, params = build_person_id_query(api, person)
             json_data = await download_json(url, params, {},
                                       post=api.http_post["person_detail"],
+                                      header=header,
                                       auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None,
