@@ -49,6 +49,10 @@ class NigerianCAC(API):
         return False
 
     @property
+    def session_cookie(self):
+        return None, None
+
+    @property
     def company_search_url(self) -> str:
         """API company search url"""
         return f"{self.base_url}"
@@ -145,13 +149,20 @@ class NigerianCAC(API):
 
     def filter_result(self, data: dict, search_type=None, search=None, detail=False) -> bool:
         """Filter out item if meets condition"""
-        if not 'rcNumber' in data or not data['rcNumber']:
-            return True
-        else:
-            if "affiliateIsCorporate" in data and data["affiliateIsCorporate"]:
-                return True
-            else:
+        if search_type == "person":
+            if 'affiliatesSurname' in data and data['affiliatesSurname']:
                 return False
+            else:
+                return True
+        else:
+            if 'rcNumber' in data and data['rcNumber']:
+                return False
+            else:
+                return True
+            #if "affiliateIsCorporate" in data and data["affiliateIsCorporate"]:
+            #    return True
+            #else:
+            #    return False
 
     def extract_data(self, json_data: dict) -> dict:
         """Extract main data body from json data"""
@@ -246,7 +257,8 @@ class NigerianCAC(API):
     @property
     def search_url(self) -> str:
         """URL for manual search"""
-        return 'https://search.cac.gov.ng/home'
+        #return 'https://search.cac.gov.ng/home'
+        return 'https://bor.cac.gov.ng/'
 
     @property
     def scheme_name(self) -> str:
@@ -259,7 +271,7 @@ class NigerianCAC(API):
 
     def record_id(self, item: dict) -> str:
         """Get recordID"""
-        if "rcNumber" in item:
+        if not 'affiliatesSurname' in item:
             return f"NG-CAC-RC{item['rcNumber']}"
         else:
             ident = self.person_identifier(item)

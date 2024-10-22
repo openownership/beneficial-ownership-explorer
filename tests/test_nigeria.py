@@ -26,3 +26,14 @@ async def test_nigeria_cac_person_search():
 
     print(json.dumps(bods_data, indent=2))
     assert False
+
+@pytest.mark.asyncio
+async def test_nigeria_cac_person_search_2():
+    api = NigerianCAC()
+    text = "Charlotte Obidairo"
+    bods_data = {'persons': {}, 'sources': {}}
+    _, persons_data = await fetch_person_data(api, text, bods_data)
+    process_person_data(persons_data, api, bods_data, search=text)
+
+    print(json.dumps(bods_data, indent=2))
+    assert False
