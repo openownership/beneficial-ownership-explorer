@@ -15,9 +15,9 @@ def merge_records(record_id, records):
 
 def summary_columns(table_type="company"):
     if table_type == "person":
-        return ["Source", "Country", "Individuals", "Companies", "Links"]
+        return ["Country", "Source", "Individuals", "Companies", "Links"]
     else:
-        return ["Source", "Country", "Companies", "Individuals", "Links"]
+        return ["Country", "Source", "Companies", "Individuals", "Links"]
 
 def source_summary(source_id, data, table_type="company"):
     if table_type == "person":

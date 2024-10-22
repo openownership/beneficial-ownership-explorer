@@ -34,6 +34,7 @@ class ExplorerState(rx.State):
         }
     ]
     searching: bool = False
+    search_query: str = ""
     display_table: bool = False
     detail_identifier: str = ""
     detail_statement: dict = {}
@@ -43,6 +44,7 @@ class ExplorerState(rx.State):
         print("Form data:", form_data)
         async with self:
             self.searching = True
+            self.search_query = form_data["search_text"]
         if form_data["search_type"] == 'Company search':
             bods_data = await perform_company_search(form_data["search_text"])
             #self.data_table = construct_company_table(self.bods_data)

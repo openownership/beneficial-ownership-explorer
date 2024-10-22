@@ -52,16 +52,19 @@ def company_results() -> rx.Component:
     return rx.fragment(
                rx.vstack(
                    navbar(title="Beneficial Ownership Explorer"),
-                   rx.center(
-                       rx.color_mode.button(position="bottom-left"),
-                       rx.cond(
-                           ExplorerState.display_table,
-                           summary_table(ExplorerState.summary_columns, ExplorerState.data_table)
+                   rx.vstack(
+                       rx.text(f"Searching for {ExplorerState.search_query}:", margin="1em"),
+                       rx.center(
+                           rx.cond(
+                               ExplorerState.display_table,
+                               summary_table(ExplorerState.summary_columns, ExplorerState.data_table)
+                           ),
+                           width="100%",
+                           margin="1em",
                        ),
-                       width="100%",
-                       margin="1em",
                    ),
                ),
+               rx.color_mode.button(position="bottom-left"),
            )
 
 def persons_results() -> rx.Component:
@@ -69,16 +72,19 @@ def persons_results() -> rx.Component:
     return rx.fragment(
                rx.vstack(
                    navbar(title="Beneficial Ownership Explorer"),
-                   rx.center(
-                       rx.color_mode.button(position="bottom-left"),
-                       rx.cond(
-                           ExplorerState.display_table,
-                           summary_table(ExplorerState.summary_columns, ExplorerState.data_table)
+                   rx.vstack(
+                       rx.text(f"Searching for {ExplorerState.search_query}:", margin="1em"),
+                       rx.center(
+                           rx.cond(
+                               ExplorerState.display_table,
+                               summary_table(ExplorerState.summary_columns, ExplorerState.data_table)
+                           ),
+                           width="100%",
+                           margin="1em",
                        ),
-                       width="100%",
-                       margin="1em",
                    ),
                ),
+               rx.color_mode.button(position="bottom-left"),
            )
 
 def search_bar() -> rx.Component:
