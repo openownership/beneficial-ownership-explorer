@@ -4,9 +4,11 @@ import pytest
 from boexplorer.search import fetch_all_data, process_data
 from boexplorer.apis.gleif import GLEIF
 from boexplorer.data.data import load_data
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_gleif():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     scheme_data = load_data()
     api = GLEIF(scheme_data)
     text = "Aurubis"

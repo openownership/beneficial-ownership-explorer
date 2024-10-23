@@ -1,3 +1,5 @@
+[caching]
+cache_dir = "cache"
 
 [sources.uk_psc.credentials]
 user = ""

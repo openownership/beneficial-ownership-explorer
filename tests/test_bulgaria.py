@@ -3,9 +3,11 @@ import pytest
 
 from boexplorer.search import fetch_all_data, fetch_person_data, process_data
 from boexplorer.apis.bulgaria_cr import BulgarianCR
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_bulgaria_cr():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = BulgarianCR()
     text = "Aurubis"
     bods_data = {'entities': {}, 'persons': {}, 'sources': {}}
@@ -21,13 +23,12 @@ async def test_bulgaria_cr():
 
     assert False
 
-#@pytest.mark.asyncio
-#async def test_bulgaria_cr_person_search():
-#    api = BulgarianCR()
-#    text = "Harings"
-#    bods_data = {'persons': {}, 'sources': {}}
-#    await fetch_person_data(api, text, bods_data)
-#    print(json.dumps(bods_data, indent=2))
-#    assert False
-
-
+@pytest.mark.asyncio
+async def test_bulgaria_cr_person_search():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
+    api = BulgarianCR()
+    text = "Harings"
+    bods_data = {'persons': {}, 'sources': {}}
+    await fetch_person_data(api, text, bods_data)
+    print(json.dumps(bods_data, indent=2))
+    assert False

@@ -4,9 +4,11 @@ import pytest
 from boexplorer.search import (fetch_all_data, fetch_person_data, process_data,
                                process_person_data)
 from boexplorer.apis.nigeria_cac import NigerianCAC
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_nigeria_cac_company_search():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = NigerianCAC()
     text = "Dangote Cement"
     bods_data = {'entities': {}, 'persons': {}, 'sources': {}}
@@ -18,6 +20,7 @@ async def test_nigeria_cac_company_search():
 
 @pytest.mark.asyncio
 async def test_nigeria_cac_person_search():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = NigerianCAC()
     text = "Aliko Dangote"
     bods_data = {'persons': {}, 'sources': {}}
@@ -29,6 +32,7 @@ async def test_nigeria_cac_person_search():
 
 @pytest.mark.asyncio
 async def test_nigeria_cac_person_search_2():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = NigerianCAC()
     text = "Charlotte Obidairo"
     bods_data = {'persons': {}, 'sources': {}}

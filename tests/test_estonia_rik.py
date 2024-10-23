@@ -3,9 +3,11 @@ import pytest
 
 from boexplorer.search import fetch_all_data, process_data
 from boexplorer.apis.estonia_rik import EstoniaRIK
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_estonia_rik():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = EstoniaRIK()
     text = "Alexela"
     bods_data = {'entities': {}, 'persons': {}, 'sources': {}}

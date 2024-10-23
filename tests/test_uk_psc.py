@@ -3,9 +3,11 @@ import pytest
 
 from boexplorer.search import fetch_all_data, process_data
 from boexplorer.apis.uk_psc import UKPSC
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_uk_psc():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = UKPSC()
     text = "AstraZeneca"
     text = "Metro Bank"

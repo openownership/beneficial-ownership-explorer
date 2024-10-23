@@ -3,9 +3,11 @@ import pytest
 
 from boexplorer.search import fetch_all_data, process_data
 from boexplorer.apis.france_inpi import FranceINPI
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_france_inpi():
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = FranceINPI()
     text = "LVMH"
     bods_data = {'entities': {}, 'persons': {}, 'sources': {}}

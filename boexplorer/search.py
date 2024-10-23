@@ -8,7 +8,8 @@ from boexplorer.query.name import (build_company_id_query, build_company_name_qu
                                    build_company_persons_query)
 from boexplorer.query.person import build_person_name_query, build_person_id_query
 from boexplorer.transforms.bods_0_4_0 import transform_entity, transform_person
-
+from boexplorer.download.caching import cache_init
+from boexplorer.config import app_config
 
 def add_source(api, data, entity_count, person_count):
     source_id = api.scheme
@@ -70,6 +71,7 @@ def process_person_data(source_data, api, bods_data, search=None):
     add_source(api, bods_data['sources'], 0, person_count)
 
 async def fetch_all_data(api, text, bods_data, max_results=100):
+    cache = cache_init(app_config["caching"]["cache_dir"])
     page_number = 1
     page_size = 25
     raw_data = []
@@ -91,7 +93,8 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
                                   header=header,
                                   auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
-                                                             else None)
+                                                             else None,
+                                  cache=cache)
         if not api.check_result(json_data):
             break
         data = api.extract_data(json_data)
@@ -113,7 +116,8 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
                                       header=header,
                                       auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
-                                                             else None)
+                                                             else None,
+                                      cache=cache)
             if api.check_result(json_data, detail=True):
                 company_data.append(json_data)
                 api.company_prepocessing(json_data)
@@ -138,15 +142,18 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
                                   header=header,
                                   auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
-                                                             else None)
+                                                             else None,
+                                  cache=cache)
             else:
                 json_data = company_data
             print("Return type", type(json_data))
             for person in api.extract_entity_persons_items(json_data):
                 persons_data.append(person)
+    cache.close()
     return api, company_data, persons_data
 
 async def fetch_person_data(api, text, bods_data, max_results=100):
+    cache = cache_init(app_config["caching"]["cache_dir"])
     page_number = 1
     page_size = 25
     raw_data = []
@@ -169,7 +176,8 @@ async def fetch_person_data(api, text, bods_data, max_results=100):
                                   auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None,
-                                  timeout=api.http_timeout)
+                                  timeout=api.http_timeout,
+                                  cache=cache)
         print(json.dumps(json_data, indent=2))
         #if not api.check_result(json_data):
         #    break
@@ -193,7 +201,8 @@ async def fetch_person_data(api, text, bods_data, max_results=100):
                                       auth=api.authenticator if not (isinstance(api.authenticator, dict) and
                                                              not 'Authorization' in api.authenticator)
                                                              else None,
-                                      timeout=api.http_timeout)
+                                      timeout=api.http_timeout,
+                                      cache=cache)
             print("Raw data:", json.dumps(json_data, indent=2))
             if api.check_result(json_data, detail=True):
                 if isinstance(json_data, list):
@@ -203,6 +212,7 @@ async def fetch_person_data(api, text, bods_data, max_results=100):
                 api.person_prepocessing(json_data)
     else:
         person_data = raw_data
+    cache.close()
     return api, person_data
 
 async def perform_company_search(text):

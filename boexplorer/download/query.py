@@ -6,6 +6,7 @@ import httpx
 from parsel import Selector
 
 from boexplorer.download.utils import get_random_user_agent
+from boexplorer.download.caching import write_cache, read_cache, build_cache_key
 
 logging.basicConfig(
     format="%(levelname)s [%(asctime)s] %(name)s - %(message)s",
@@ -17,9 +18,17 @@ def parse_html(html_text):
     selector = Selector(text=html_text)
     return selector.xpath('//body')
 
+async def save_cache(cache, key, data):
+    if not cache is None:
+        if isinstance(data, str):
+            await write_cache(cache, key, data)
+        else:
+            await write_cache(cache, key, json.dumps(data))
+    return data
+
 async def download_json(api_url, query_params, other_params, json_data=True, auth=None,
                   post=False, post_json=True, post_pagination=False, header=None, random_ua=True,
-                  verify=True, return_header=False, timeout=15):
+                  verify=True, return_header=False, timeout=15, cache=None):
     if json_data:
         headers = {"Accept": "application/json",
                    "Content-Type": "application/json"}
@@ -34,7 +43,16 @@ async def download_json(api_url, query_params, other_params, json_data=True, aut
         auth = None
     if random_ua:
         headers["User-Agent"] = get_random_user_agent()
-    print("Headers:", headers, "URL:", api_url, "Post:", post, "Params:", query_params, other_params)
+    print("Headers:", headers, "URL:", api_url, "Post:", post,
+          "Params:", query_params, other_params, "Cache:", cache)
+    if not cache is None:
+        key = build_cache_key(api_url, query_params, other_params)
+        cached_data = read_cache(cache, key)
+        if cached_data:
+            print("Retreiving cached data ...")
+            return cached_data
+    else:
+        key = None
     client = httpx.AsyncClient(verify=verify)
     response = None
     try:
@@ -83,16 +101,17 @@ async def download_json(api_url, query_params, other_params, json_data=True, aut
     finally:
         await client.aclose()
     #print(response)
+    print(cache, key)
     if response and response.status_code == 200:
         if json_data:
             try:
-                return response.json()
+                return await save_cache(cache, key, response.json())
             except json.decoder.JSONDecodeError:
                 return []
         else:
             if return_header:
                 return response.header
             else:
-                return response.text
+                return await save_cache(cache, key, response.text)
     else:
         return []

@@ -4,10 +4,11 @@ import pytest
 from boexplorer.search import fetch_all_data, process_data
 from boexplorer.apis.latvia_ur import LatviaUR
 from boexplorer.data.data import load_data
+from boexplorer import config
 
 @pytest.mark.asyncio
 async def test_latvia_ur():
-    #scheme_data = load_data()
+    config.app_config = {"caching": {"cache_dir": "cache"}}
     api = LatviaUR()
     text = "Citadele Banka"
     bods_data = {'entities': {}, 'persons': {}, 'sources': {}}
