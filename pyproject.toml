@@ -6,6 +6,7 @@ requires-python = '>=3.10'
 dependencies = ["reflex",
                 "tomli",
                 "httpx",
+                "diskcache",
                 "selenium-stealth",
                 "webdriver-manager",
                 "pycountry",
