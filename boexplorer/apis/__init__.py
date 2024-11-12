@@ -29,4 +29,5 @@ search_persons_apis = [BulgarianCR(),
 		       NigerianCAC(),
                        DenmarkCVR(),
                        SlovakiaORSR(),
+                       EstoniaRIK(),
                ]

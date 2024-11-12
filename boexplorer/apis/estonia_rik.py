@@ -1,5 +1,6 @@
 import re
 from typing import Optional, Tuple, Union
+from copy import deepcopy
 
 from parsel import Selector
 from lxml import etree
@@ -8,9 +9,17 @@ from boexplorer.apis.protocol import API
 from boexplorer.utils.dates import current_date
 from boexplorer.download.authentication import authenticator
 from boexplorer.config import app_config
+from boexplorer.bulk_data.search import load_data, extract_names, search_data
+from boexplorer.bulk_data.download import download_data
 
 class EstoniaRIK(API):
     """Handle accessing Estonian RIK api"""
+    def __init__(self):
+        url = "https://avaandmed.ariregister.rik.ee/sites/default/files/avaandmed/ettevotja_rekvisiidid__kasusaajad.json.zip"
+        filename = "ettevotja_rekvisiidid__kasusaajad.json"
+        download_data(url, filename)
+        self.bulk_data = load_data(filename)
+        self.person_names = extract_names(self.bulk_data)
 
     @property
     def authenticator(self) -> str:
@@ -160,7 +169,9 @@ class EstoniaRIK(API):
 
     def query_person_name_params(self, text) -> dict:
         """Querying person name parameter"""
-        return None
+        results = search_data(self.person_names, self.bulk_data, text)
+        print("Results:", results)
+        return results
 
     @property
     def query_person_name_extra(self) -> str:
@@ -203,6 +214,19 @@ class EstoniaRIK(API):
         """Extract main data body from json data"""
         return json_data["keha"]["ettevotjad"]["item"]
 
+    def extract_person_data(self, json_data: dict) -> dict:
+        """Extract main data body from json data"""
+        out = []
+        for item in json_data:
+            company_id = item['ariregistri_kood']
+            company_name = item['nimi']
+            for person in item['kasusaajad']:
+                new_person = deepcopy(person)
+                new_person['ariregistri_kood'] = company_id
+                new_person["evnimi"] = company_name
+                out.append(new_person)
+        return out
+
     def company_prepocessing(self, data: dict) -> dict:
         pass
 
@@ -233,7 +257,7 @@ class EstoniaRIK(API):
                 item = {}
                 for param in elem.xpath('./*'):
                     item[param.tag.split("}")[-1]] = param.text
-                items.append(item)
+                if 'nimi' in item: items.append(item)
             return items
         else:
             return []

@@ -77,7 +77,7 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
     raw_data = []
     count = 0
     user_agent, cookie = api.session_cookie
-    header = {}
+    header = api.http_headers
     if user_agent: header["User-Agent"] = user_agent
     if cookie: header["Cookie"] = cookie
     while True:
@@ -153,6 +153,9 @@ async def fetch_all_data(api, text, bods_data, max_results=100):
     return api, company_data, persons_data
 
 async def fetch_person_data(api, text, bods_data, max_results=100):
+    person_data = api.query_person_name_params(api.to_local_characters(text))
+    if isinstance(person_data, list):
+        return api, api.extract_person_data(person_data)
     cache = cache_init(app_config["caching"]["cache_dir"])
     page_number = 1
     page_size = 25
