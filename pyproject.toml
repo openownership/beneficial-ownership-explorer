@@ -31,6 +31,10 @@ homepage = 'https://github.com/openownership/beneficial-ownership-search'
 documentation = 'https://github.com/openownership/beneficial-ownership-search'
 repository = 'https://github.com/openownership/beneficial-ownership-search'
 
+[tool.setuptools]
+packages = ["boexplorer"]
+py-modules = ["__init__"]
+
 [tool.ruff]
 lint.select = [
     "E",  # pycodestyle errors
