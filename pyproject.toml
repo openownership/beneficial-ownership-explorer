@@ -19,6 +19,7 @@ dependencies = ["reflex",
                 "parsel",
                 "random-user-agent",
                 "thefuzz",
+                "neofuzz",
                 "pytest-asyncio"]
 readme="README.md"
 license = {text= "AGPLv3"}
