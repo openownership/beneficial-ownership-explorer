@@ -39,8 +39,8 @@ class ExplorerState(rx.State):
     detail_identifier: str = ""
     detail_statement: dict = {}
 
-    @rx.background
-    async def get_search_result(self, form_data: dict[str, str]):
+    @rx.event(background=True)
+    async def get_search_result(self, form_data: dict[str, Any]):
         print("Form data:", form_data)
         async with self:
             self.searching = True
