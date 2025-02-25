@@ -18,12 +18,17 @@ class NigerianCAC(API):
     def base_url(self) -> str:
         """API base url"""
         #return "https://borapp.cac.gov.ng/borapp/api/bor-search"
-        return "https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it"
+        #return "https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it"
+        return "https://searchapp.cac.gov.ng/api/public/public-search/company-business-name-it"
 
     @property
     def http_timeout(self) -> int:
         """API http method"""
         return 90
+
+    @property
+    def http_headers(self):
+        return None
 
     @property
     def http_post(self) -> dict:
@@ -82,13 +87,15 @@ class NigerianCAC(API):
     def page_size_par(self) -> Tuple[str, bool]:
         """Page size parameter"""
         #return "limit", False
-        return None, False
+        #return None, False
+        return "limit", False
 
     @property
     def page_number_par(self) -> Tuple[str, int]:
         """Page number parameter"""
         #return "page", 1
-        return None, 1
+        #return None, 1
+        return "page", 1
 
     @property
     def page_size_max(self) -> int:
@@ -97,7 +104,7 @@ class NigerianCAC(API):
 
     def query_company_name_params(self, text) -> dict:
         """Querying company name parameter"""
-        return {"searchTerm": text, "classification": {"id": 2}}
+        return {"searchTerm": text} #, "classification": {"id": 2}}
 
     @property
     def query_company_name_extra(self) -> str:
@@ -142,6 +149,7 @@ class NigerianCAC(API):
             else:
                 return False
         else:
+            print(json_data)
             if json_data["status"] == "OK":
                 return True
             else:
