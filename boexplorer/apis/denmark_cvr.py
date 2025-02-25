@@ -27,6 +27,26 @@ class DenmarkCVR(API):
         return 15
 
     @property
+    def http_headers(self):
+        return {"Accept": "application/json, text/plain, */*",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "en-GB,en;q=0.8",
+                "Cache-Control": "no-cache",
+                #"Content-Length": 325,
+                #"Content-Type": "application/json",
+                "Origin": "https://datacvr.virk.dk",
+                "Priority": "u=1, i",
+                "Referer": "https://datacvr.virk.dk/soegeresultater?fritekst=Harings&sideIndex=0&size=10",
+                "Sec-Ch-Ua": '"Not)A;Brand";v="99", "Brave";v="127", "Chromium";v="127"',
+                "Sec-Ch-Ua-Mobile": "?0",
+                "Sec-Ch-Ua-Platform": "Linux",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-origin",
+                "Sec-Gpc": "1",
+                "X-Requested-With": "XMLHttpRequest"}
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": True,

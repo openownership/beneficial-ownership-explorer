@@ -38,6 +38,10 @@ class EstoniaRIK(API):
         return 15
 
     @property
+    def http_headers(self):
+        return None
+
+    @property
     def http_post(self) -> dict:
         """API http post"""
         return {"company_search": True,
