@@ -16,7 +16,21 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+## Configuration
+
 Copy example configuration file (`boexplorer.toml.example`) to `boexplorer.toml` and edit.
+Credentials are needed for several of the sources that are queried, and these will need to
+be obtained by registering with the relevant organisations. Details can be found in the 
+`boexplorer.toml.example` file and each section will need filled in with valid credentials, 
+e.g.:
+
+```
+[sources.estonia_rik.credentials]
+user = "<username>"
+pass = "<password>"
+```
+
+## Running
 
 Run application:
 

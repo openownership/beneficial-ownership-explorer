@@ -1,14 +1,19 @@
 [caching]
 cache_dir = "cache"
 
+# The following data sources require require credentials to access
+
+# See: https://developer-specs.company-information.service.gov.uk/guides/authorisation
 [sources.uk_psc.credentials]
 user = ""
 pass = ""
 
+# See: https://data.inpi.fr/content/editorial/Acces_API_Entreprises
 [sources.france_inpi.credentials]
 user = ""
 pass = ""
 
+# See: https://avaandmed.ariregister.rik.ee/en/open-data-api/introduction-api-services
 [sources.estonia_rik.credentials]
 user = ""
 pass = ""
