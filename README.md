@@ -1,3 +1,6 @@
+__This was an experimental tool that will not receive further development from Open Ownership. We are making the code available so others can see what we have done and adapt it themselves if they wish. For more information on what we learned see:
+https://openownership.org/en/blog/building-a-single-search-tool-for-beneficial-ownership-registers__
+
 # Beneficial Ownership Explorer
 
 Web application for dynamic querying of APIs to explorer beneficial ownership data
